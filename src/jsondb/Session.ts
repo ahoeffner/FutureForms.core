@@ -24,7 +24,7 @@ export class Session
    }
 
 
-   public connect(username:string, password?:string) : boolean
+   public async connect(username:string, password?:string) : Promise<boolean>
    {
       let request:any =
       {
@@ -40,9 +40,9 @@ export class Session
          }
       }
 
-      let response:any = this.invoke(request);
+      let response:any = await this.invoke(request);
       console.log(response);
-      return(true);
+      return(response.success);
    }
 
 
