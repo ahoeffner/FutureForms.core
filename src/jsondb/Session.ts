@@ -62,10 +62,10 @@ export class Session
       }
 
       if (this.vpd$.length > 0)
-         request.Session.vpd = this.vpd$;
+         request.Session["connect()"].vpd = this.vpd$;
 
       if (this.clientinfo$.length > 0)
-         request.Session["client-info"] = this.clientinfo$;
+         request.Session["connect()"]["client-info"] = this.clientinfo$;
 
       let response:any = await this.invoke(request);
 
@@ -73,7 +73,8 @@ export class Session
       {
          this.vpd$ = [];
          this.clientinfo$ = [];
-         
+
+         this.guid$ = response.session;
          this.timeout$ = response.timeout;
 
          if (this.timeout$ < Session.KEEPALIVE_MIN)
@@ -89,8 +90,68 @@ export class Session
    }
 
 
+   public async disconnect() : Promise<boolean>
+   {
+      if (this.guid$ == null)
+         return(false);
+
+      let guid:string = this.guid$;
+
+      let request:any =
+      {
+         "Session":
+         {
+            "session": this.guid$,
+            "invoke": "disconnect()",
+         }
+      }
+
+      this.guid$ = null;
+
+      try {await this.invoke(request);}
+      catch (error) {this.guid$ = guid; return(false)}
+
+      return(true);
+   }
+
+
+   public async setProperties() : Promise<boolean>
+   {
+      let request:any =
+      {
+         "Session":
+         {
+            "invoke": "properties()",
+
+            "properties()":
+            {
+            }
+         }
+      }
+
+      if (this.vpd$.length > 0)
+         request.Session["properties()"].vpd = this.vpd$;
+
+      if (this.clientinfo$.length > 0)
+         request.Session["properties()"]["client-info"] = this.clientinfo$;
+
+      let response:any = await this.invoke(request);
+
+      if (response.success)
+      {
+         this.vpd$ = [];
+         this.clientinfo$ = [];
+      }
+
+      return(response.success);
+   }
+
+
    public async keepalive(next:Object) : Promise<void>
    {
+      if (this.guid$ == null)
+         return;
+
       if (next != this.last$)
          return;
 
@@ -107,17 +168,24 @@ export class Session
    }
 
 
-   private async invoke(payload:any) : Promise<any>
+   private async invoke(payload:any, path?:string) : Promise<any>
    {
+      if (!path) path = "";
+
+      if (path.startsWith("/"))
+         path = path.substring(1);
+
+      path = this.url.toString() + path;
+
       let errmsg:any = null;
       let success:boolean = true;
 
-      let response:any = await fetch(this.url,{method: "POST", body: JSON.stringify(payload)})
+      let response:any = await fetch(path,{method: "POST", body: JSON.stringify(payload)})
         .catch((error) =>{success = false; errmsg = error});
 
       if (!success) throw errmsg;
 
-      if (this.last$ != null)
+      if (this.guid$ != null)
          this.last$ = KeepAlive.next(this,this.timeout$);
 
       return(response.json());
