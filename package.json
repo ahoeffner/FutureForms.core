@@ -3,11 +3,12 @@
   "version": "3.0.0",
   "description": "Futureforms core api",
   "type": "module",
+  "main": "public-api.js",
   "types": "public-api.d.ts",
   "scripts": {
     "lint": "eslint . --ext .ts",
     "tsc": "tsc",
-    "build": "tsc && cp dist/public-api.d.ts dist/index.ts && cp package.json dist"
+    "build": "tsc && cp package.json dist"
   },
   "keywords": [
     "Database",
