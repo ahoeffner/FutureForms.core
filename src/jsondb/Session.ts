@@ -1,3 +1,24 @@
+/*
+  MIT License
+
+  Copyright © 2023 Alex Høffner
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+  and associated documentation files (the “Software”), to deal in the Software without
+  restriction, including without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the
+  Software is furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in all copies or
+  substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+  BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+  DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
 export class Session
 {
    public static KEEPALIVE_MIN = 32;
@@ -33,6 +54,12 @@ export class Session
    }
 
 
+   public get guid() : string
+   {
+      return(this.guid$);
+   }
+
+
    public addVPDContext(name:string, value:any) : void
    {
       this.vpd$.push({name: name, value: value});
@@ -45,8 +72,11 @@ export class Session
    }
 
 
-   public async connect(username:string, password?:string) : Promise<boolean>
+   public async connect(username:string, password?:string, stateful?:boolean) : Promise<boolean>
    {
+      if (stateful == null)
+         stateful = false;
+
       let request:any =
       {
          "Session":
@@ -56,7 +86,8 @@ export class Session
             "connect()":
             {
                "username": username,
-               "password": password
+               "password": password,
+               "stateful": stateful
             }
          }
       }
@@ -168,7 +199,7 @@ export class Session
    }
 
 
-   private async invoke(payload:any, path?:string) : Promise<any>
+   public async invoke(payload:any, path?:string) : Promise<any>
    {
       if (!path) path = "";
 
