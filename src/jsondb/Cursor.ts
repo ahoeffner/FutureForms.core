@@ -80,9 +80,7 @@ export class Cursor
       if (val instanceof Date) return(val);
 
       if (typeof val === "string")
-      {
-         console.log(val)
-      }
+         return(new Date(val));
 
       return(null);
    }

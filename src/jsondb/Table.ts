@@ -31,7 +31,7 @@ export class Table
 
    private arrayfetch$:number = 16;
 
-   private order$:string[] = null;
+   private order$:string = null;
    private columns$:string[] = ["*"];
 
 
@@ -39,6 +39,13 @@ export class Table
    {
       this.source$ = source;
       this.session$ = session;
+   }
+
+
+   public setOrder(order:string) : Table
+   {
+      this.order$ = order;
+      return(this);
    }
 
 
@@ -96,12 +103,14 @@ export class Table
 
             "select()":
             {
-               "order": this.order$,
                "columns": this.columns$,
                "page-size": this.arrayfetch$
             }
          }
       }
+
+      if (this.order$ != null)
+         request.Table["select()"].order = this.order$;
 
       let response:any = await this.session$.invoke(request);
 
