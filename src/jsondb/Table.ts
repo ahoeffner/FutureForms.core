@@ -32,6 +32,7 @@ export class Table
    private arrayfetch$:number = 16;
 
    private order$:string = null;
+   private primkey$:string[] = null;
    private columns$:string[] = ["*"];
 
 
@@ -59,8 +60,11 @@ export class Table
    }
 
 
-   public async describe() : Promise<TableDefinition>
+   public async describe(useAsDefault?:boolean) : Promise<TableDefinition>
    {
+      if (useAsDefault == null)
+         useAsDefault = true;
+      
       let request:any =
       {
          "Table":
@@ -85,6 +89,16 @@ export class Table
 
          response.rows.forEach(column =>
          {definition.columns.push(column);});
+
+         if (useAsDefault)
+         {
+            this.columns$ = [];
+            this.order$ = definition.order;
+            this.primkey$ = definition.primarykey;
+
+            definition.columns.forEach((coldef) =>
+            {this.columns$.push(coldef.name.toLowerCase())})
+         }
       }
 
       return(definition);
@@ -122,9 +136,18 @@ export class Table
 }
 
 
+export class ColumnDefinition
+{
+   public name:string;
+   public type:string;
+   public sqltype:number;
+   public precision:number[]
+}
+
+
 export class TableDefinition
 {
    public order:string;
    public primarykey:string[];
-   public columns:{name:string, type:string, sqltype:number, precision:number[]}[];
+   public columns:ColumnDefinition[];
 }
