@@ -103,9 +103,11 @@ export class Cursor
       if (this.arrayfetch$ != null)
       {
          request.Cursor["fetch()"] =
-         {
-            "page-size": this.arrayfetch$
-         }
+         {"page-size": this.arrayfetch$}
+
+         this.arrayfetch$ = null;
+
+         console.log(request)
       }
 
       let response:any = await this.session.invoke(request);
