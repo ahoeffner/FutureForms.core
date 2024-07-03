@@ -27,6 +27,7 @@ export class Cursor
 {
    private errm$:string = null;
    private success$:boolean = true;
+   private arrayfetch$:number = null;
 
    private pos$:number = -1;
    private id$:string = null;
@@ -56,6 +57,13 @@ export class Cursor
    public getErrorMessage() : string
    {
       return(this.errm$);
+   }
+
+
+   public setArrayFetch(rows:number) : Cursor
+   {
+      this.arrayfetch$ = rows;
+      return(this);
    }
 
 
@@ -92,6 +100,14 @@ export class Cursor
          }
       }
 
+      if (this.arrayfetch$ != null)
+      {
+         request.Cursor["fetch()"] =
+         {
+            "page-size": this.arrayfetch$
+         }
+      }
+
       let response:any = await this.session.invoke(request);
 
       this.errm$ = response.message;
@@ -113,7 +129,7 @@ export class Cursor
    public async close() : Promise<boolean>
    {
       this.more$ = false;
-      
+
       let request:any =
       {
          "Cursor":
