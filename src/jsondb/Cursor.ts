@@ -29,6 +29,7 @@ export class Cursor
    private success$:boolean = true;
    private arrayfetch$:number = null;
 
+   private rows$:number = 0;
    private pos$:number = -1;
    private id$:string = null;
    private data$:object[][] = [];
@@ -45,6 +46,7 @@ export class Cursor
       this.id$ = response.cursor;
       this.more$ = response.more;
       this.data$ = response.rows;
+      this.rows$ = this.data$.length;
    }
 
 
@@ -57,6 +59,12 @@ export class Cursor
    public getErrorMessage() : string
    {
       return(this.errm$);
+   }
+
+
+   public fetched() : number
+   {
+      return(this.rows$);
    }
 
 
@@ -106,8 +114,6 @@ export class Cursor
          {"page-size": this.arrayfetch$}
 
          this.arrayfetch$ = null;
-
-         console.log(request)
       }
 
       let response:any = await this.session.invoke(request);
@@ -120,6 +126,7 @@ export class Cursor
          this.pos$ = -1;
          this.more$ = response.more;
          this.data$ = response.rows;
+         this.rows$ += this.data$.length;
 
          return(this.next());
       }
