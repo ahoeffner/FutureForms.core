@@ -20,6 +20,7 @@
 */
 
 import { Session } from "./Session.js";
+import { ColumnDefinition } from "./Table.js";
 
 
 export class Cursor
@@ -29,13 +30,16 @@ export class Cursor
    private data$:object[][] = [];
    private more$:boolean = false;
    private columns$:string[] = null;
+   private coldef$:Map<string,ColumnDefinition> = null;
 
 
-   constructor(private session:Session, columns:string[], response:any)
+   constructor(private session:Session, coldef:Map<string,ColumnDefinition>, response:any)
    {
-      this.columns$ = columns;
+      this.coldef$ = coldef;
 
-      for (let i = 0; i < columns.length; i++)
+      this.columns$ = response.columns;
+
+      for (let i = 0; i < this.columns$.length; i++)
          this.columns$[i] = this.columns$[i].toLowerCase();
 
       this.id$ = response.cursor;
@@ -44,15 +48,20 @@ export class Cursor
    }
 
 
-   public columns() : string[]
-   {
-      return(this.columns$);
-   }
-
-
    public async next() : Promise<boolean>
    {
       this.pos$++;
+
+      if (this.pos$ < this.data$.length && this.coldef$.size > 0)
+      {
+         for (let i = 0; i < this.columns$.length; i++)
+         {
+            let cdef:ColumnDefinition = this.coldef$.get(this.columns$[i]);
+
+            if (cdef != null && cdef.isDate() && this.data$[this.pos$][i])
+               this.data$[this.pos$][i] = new Date(""+this.data$[this.pos$][i]);
+         }
+      }
 
       if (this.pos$ < this.data$.length)
          return(true);
@@ -60,7 +69,27 @@ export class Cursor
       if (!this.more$)
          return(false);
 
-      console.log("fetch");
+      let request:any =
+      {
+         "Cursor":
+         {
+            "invoke": "fetch",
+            "session": this.session.guid,
+            "cursor": this.id$
+         }
+      }
+
+      let response:any = await this.session.invoke(request);
+
+      if (response.success)
+      {
+         this.pos$ = -1;
+         this.more$ = response.more;
+         this.data$ = response.rows;
+
+         return(this.next());
+      }
+
       return(false);
    }
 
@@ -71,10 +100,19 @@ export class Cursor
    }
 
 
+   public get(idx:number|string) : any
+   {
+      if (typeof idx === "string")
+         idx = this.columns$.indexOf(idx.toLowerCase());
+
+      return(this.data$[this.pos$][idx]);
+   }
+
+
    public getDate(idx:number|string) : Date
    {
       if (typeof idx === "string")
-         idx = this.columns$.indexOf(idx);
+         idx = this.columns$.indexOf(idx.toLowerCase());
 
       let val:any = this.data$[this.pos$][idx];
       if (val instanceof Date) return(val);
@@ -89,10 +127,11 @@ export class Cursor
    public getString(idx:number|string) : string
    {
       if (typeof idx === "string")
-         idx = this.columns$.indexOf(idx);
+         idx = this.columns$.indexOf(idx.toLowerCase());
 
       let val:any = this.data$[this.pos$][idx];
       if (val != null) return(val+"");
+
       return(null);
    }
 
@@ -100,10 +139,11 @@ export class Cursor
    public getNumber(idx:number|string) : number
    {
       if (typeof idx === "string")
-         idx = this.columns$.indexOf(idx);
+         idx = this.columns$.indexOf(idx.toLowerCase());
 
       let val:any = this.data$[this.pos$][idx];
       if (val != null) return(+val);
+
       return(null);
    }
 
@@ -111,7 +151,7 @@ export class Cursor
    public getBoolean(idx:number|string) : boolean
    {
       if (typeof idx === "string")
-         idx = this.columns$.indexOf(idx);
+         idx = this.columns$.indexOf(idx.toLowerCase());
 
       let val:any = this.data$[this.pos$][idx];
 

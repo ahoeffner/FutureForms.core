@@ -33,7 +33,10 @@ export class Table
 
    private order$:string = null;
    private primkey$:string[] = null;
-   private columns$:string[] = ["*"];
+   private described$:boolean = false;
+
+   private coldef$:Map<string,ColumnDefinition> =
+      new Map<string,ColumnDefinition>();
 
 
    public constructor(session:Session, source:string)
@@ -50,21 +53,51 @@ export class Table
    }
 
 
-   public setColumns(columns:string|string[]) : Table
+   public async executeQuery(columns:string|string[],close?:boolean) : Promise<Cursor>
    {
       if (!Array.isArray(columns))
          columns = [columns];
 
-      this.columns$ = columns;
-      return(this);
+      if (!this.described$)
+      {
+         let desc:TableDefinition = DefinitionCache.get(this.source$);
+         if (desc == null) {desc = await this.describe(); DefinitionCache.add(this.source$,desc)}
+      }
+
+      let request:any =
+      {
+         "Table":
+         {
+            "invoke": "select",
+            "source": this.source$,
+            "session": this.session$.guid,
+
+            "select()":
+            {
+               "heading": true,
+               "columns": columns,
+               "page-size": this.arrayfetch$
+            }
+         }
+      }
+
+      if (close)
+         request.Table["select()"].cursor = false;
+
+      if (this.order$ != null)
+         request.Table["select()"].order = this.order$;
+
+      let response:any = await this.session$.invoke(request);
+
+      this.errm$ = response.message;
+      if (response.success) return(new Cursor(this.session$,this.coldef$,response));
+
+      return(null);
    }
 
 
-   public async describe(useAsDefault?:boolean) : Promise<TableDefinition>
+   private async describe() : Promise<TableDefinition>
    {
-      if (useAsDefault == null)
-         useAsDefault = true;
-      
       let request:any =
       {
          "Table":
@@ -75,6 +108,7 @@ export class Table
          }
       }
 
+      let column:ColumnDefinition = null;
       let definition:TableDefinition = null;
       let response:any = await this.session$.invoke(request);
 
@@ -87,51 +121,29 @@ export class Table
 
          definition.columns = [];
 
-         response.rows.forEach(column =>
-         {definition.columns.push(column);});
-
-         if (useAsDefault)
+         response.rows.forEach(coldef =>
          {
-            this.columns$ = [];
+            column = new ColumnDefinition();
+
+            column.name = coldef.name;
+            column.type = coldef.type;
+            column.sqltype = coldef.sqltype;
+            column.precision = coldef.precision;
+
+            definition.columns.push(column);
+         });
+
+         if (this.order$ == null)
             this.order$ = definition.order;
+
+         if (this.primkey$ == null)
             this.primkey$ = definition.primarykey;
 
-            definition.columns.forEach((coldef) =>
-            {this.columns$.push(coldef.name.toLowerCase())})
-         }
+         definition.columns.forEach((coldef) =>
+         {this.coldef$.set(coldef.name.toLowerCase(),coldef)})
       }
 
       return(definition);
-   }
-
-
-   public async executeQuery(close?:boolean) : Promise<Cursor>
-   {
-      let request:any =
-      {
-         "Table":
-         {
-            "invoke": "select",
-            "source": this.source$,
-            "session": this.session$.guid,
-
-            "select()":
-            {
-               "columns": this.columns$,
-               "page-size": this.arrayfetch$
-            }
-         }
-      }
-
-      if (this.order$ != null)
-         request.Table["select()"].order = this.order$;
-
-      let response:any = await this.session$.invoke(request);
-
-      this.errm$ = response.message;
-      if (response.success) return(new Cursor(this.session$,this.columns$,response));
-
-      return(null);
    }
 }
 
@@ -142,6 +154,17 @@ export class ColumnDefinition
    public type:string;
    public sqltype:number;
    public precision:number[]
+
+   public isDate() : boolean
+   {
+      if (this.type.toLowerCase().indexOf("date") >= 0)
+         return(true);
+
+      if (this.type.toLowerCase().indexOf("timestamp") >= 0)
+         return(true);
+
+      return(false);
+   }
 }
 
 
@@ -150,4 +173,22 @@ export class TableDefinition
    public order:string;
    public primarykey:string[];
    public columns:ColumnDefinition[];
+}
+
+
+class DefinitionCache
+{
+   private static cache:Map<string,TableDefinition> =
+      new Map<string,TableDefinition>();
+
+   public static get(source:string) : TableDefinition
+   {
+      return(DefinitionCache.cache.get(source.toLowerCase()));
+   }
+
+
+   public static add(source:string, tdef:TableDefinition)
+   {
+      DefinitionCache.cache.set(source.toLowerCase(),tdef);
+   }
 }
