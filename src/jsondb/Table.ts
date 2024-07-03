@@ -24,8 +24,8 @@ import { Session } from "./Session.js";
 
 export class Table
 {
-   private errm$:string;
-   private success$:boolean = false;
+   private errm$:string = null;
+   private success$:boolean = true;
 
    private source$:string;
    private session$:Session;

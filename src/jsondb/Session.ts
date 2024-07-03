@@ -24,6 +24,9 @@ export class Session
    public static KEEPALIVE_MIN = 32;
    public static KEEPALIVE_SLACK = 8;
 
+   private errm$:string = null;
+   private success$:boolean = true;
+
    private url$:URL = null;
    private guid$:string = null;
 
@@ -32,6 +35,18 @@ export class Session
 
    private vpd$:{name:string, value:object}[] = [];
    private clientinfo$:{name:string, value:object}[] = [];
+
+
+   public failed() : boolean
+   {
+      return(!this.success$);
+   }
+
+
+   public getErrorMessage() : string
+   {
+      return(this.errm$);
+   }
 
 
    public get url() : URL
@@ -99,6 +114,9 @@ export class Session
          request.Session["connect()"]["client-info"] = this.clientinfo$;
 
       let response:any = await this.invoke(request);
+
+      this.errm$ = response.message;
+      this.success$ = response.success;
 
       if (response.success)
       {

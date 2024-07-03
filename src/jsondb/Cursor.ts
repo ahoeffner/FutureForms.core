@@ -25,6 +25,9 @@ import { ColumnDefinition } from "./Table.js";
 
 export class Cursor
 {
+   private errm$:string = null;
+   private success$:boolean = true;
+
    private pos$:number = -1;
    private id$:string = null;
    private data$:object[][] = [];
@@ -41,6 +44,18 @@ export class Cursor
       this.id$ = response.cursor;
       this.more$ = response.more;
       this.data$ = response.rows;
+   }
+
+
+   public failed() : boolean
+   {
+      return(!this.success$);
+   }
+
+
+   public getErrorMessage() : string
+   {
+      return(this.errm$);
    }
 
 
@@ -79,6 +94,9 @@ export class Cursor
 
       let response:any = await this.session.invoke(request);
 
+      this.errm$ = response.message;
+      this.success$ = response.success;
+
       if (response.success)
       {
          this.pos$ = -1;
@@ -89,6 +107,29 @@ export class Cursor
       }
 
       return(false);
+   }
+
+
+   public async close() : Promise<boolean>
+   {
+      this.more$ = false;
+      
+      let request:any =
+      {
+         "Cursor":
+         {
+            "invoke": "close",
+            "session": this.session.guid,
+            "cursor": this.id$
+         }
+      }
+
+      let response:any = await this.session.invoke(request);
+
+      this.errm$ = response.message;
+      this.success$ = response.success;
+
+      return(response.success);
    }
 
 
