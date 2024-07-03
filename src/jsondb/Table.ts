@@ -25,6 +25,7 @@ import { Session } from "./Session.js";
 export class Table
 {
    private errm$:string;
+   private success$:boolean = false;
 
    private source$:string;
    private session$:Session;
@@ -46,9 +47,28 @@ export class Table
    }
 
 
+   public failed() : boolean
+   {
+      return(!this.success$);
+   }
+
+
+   public getErrorMessage() : string
+   {
+      return(this.errm$);
+   }
+
+
    public setOrder(order:string) : Table
    {
       this.order$ = order;
+      return(this);
+   }
+
+
+   public setArrayFetch(rows:number) : Table
+   {
+      this.arrayfetch$ = rows;
       return(this);
    }
 
@@ -61,7 +81,15 @@ export class Table
       if (!this.described$)
       {
          let desc:TableDefinition = DefinitionCache.get(this.source$);
-         if (desc == null) {desc = await this.describe(); DefinitionCache.add(this.source$,desc)}
+
+         if (desc == null)
+         {
+            desc = await this.describe();
+            DefinitionCache.add(this.source$,desc);
+         }
+
+         if (this.failed())
+            return(null);
       }
 
       let request:any =
@@ -90,7 +118,10 @@ export class Table
       let response:any = await this.session$.invoke(request);
 
       this.errm$ = response.message;
-      if (response.success) return(new Cursor(this.session$,this.coldef$,response));
+      this.success$ = response.success;
+
+      if (response.success)
+         return(new Cursor(this.session$,this.coldef$,response));
 
       return(null);
    }
@@ -111,6 +142,9 @@ export class Table
       let column:ColumnDefinition = null;
       let definition:TableDefinition = null;
       let response:any = await this.session$.invoke(request);
+
+      this.errm$ = response.message;
+      this.success$ = response.success;
 
       if (response.success)
       {
@@ -189,6 +223,7 @@ class DefinitionCache
 
    public static add(source:string, tdef:TableDefinition)
    {
-      DefinitionCache.cache.set(source.toLowerCase(),tdef);
+      if (tdef != null)
+         DefinitionCache.cache.set(source.toLowerCase(),tdef);
    }
 }

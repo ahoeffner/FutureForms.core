@@ -36,11 +36,7 @@ export class Cursor
    constructor(private session:Session, coldef:Map<string,ColumnDefinition>, response:any)
    {
       this.coldef$ = coldef;
-
       this.columns$ = response.columns;
-
-      for (let i = 0; i < this.columns$.length; i++)
-         this.columns$[i] = this.columns$[i].toLowerCase();
 
       this.id$ = response.cursor;
       this.more$ = response.more;
@@ -52,11 +48,13 @@ export class Cursor
    {
       this.pos$++;
 
-      if (this.pos$ < this.data$.length && this.coldef$.size > 0)
+      if (this.pos$ < this.data$.length)
       {
+         let cdef:ColumnDefinition = null;
+
          for (let i = 0; i < this.columns$.length; i++)
          {
-            let cdef:ColumnDefinition = this.coldef$.get(this.columns$[i]);
+            cdef = this.coldef$.get(this.columns$[i].toLowerCase());
 
             if (cdef != null && cdef.isDate() && this.data$[this.pos$][i])
                this.data$[this.pos$][i] = new Date(""+this.data$[this.pos$][i]);
@@ -94,12 +92,6 @@ export class Cursor
    }
 
 
-   public fetch() : object[]
-   {
-      return(this.data$[this.pos$]);
-   }
-
-
    public get(idx:number|string) : any
    {
       if (typeof idx === "string")
@@ -109,58 +101,17 @@ export class Cursor
    }
 
 
-   public getDate(idx:number|string) : Date
+   public getRecord(lower?:boolean) : Map<string,object>
    {
-      if (typeof idx === "string")
-         idx = this.columns$.indexOf(idx.toLowerCase());
+      let rec:Map<string,object> = new Map<string,object>();
 
-      let val:any = this.data$[this.pos$][idx];
-      if (val instanceof Date) return(val);
+      for (let i = 0; i < this.columns$.length; i++)
+      {
+         let col:string = this.columns$[i];
+         if (lower) col = col.toLowerCase();
+         rec.set(col,this.data$[this.pos$][i]);
+      }
 
-      if (typeof val === "string")
-         return(new Date(val));
-
-      return(null);
-   }
-
-
-   public getString(idx:number|string) : string
-   {
-      if (typeof idx === "string")
-         idx = this.columns$.indexOf(idx.toLowerCase());
-
-      let val:any = this.data$[this.pos$][idx];
-      if (val != null) return(val+"");
-
-      return(null);
-   }
-
-
-   public getNumber(idx:number|string) : number
-   {
-      if (typeof idx === "string")
-         idx = this.columns$.indexOf(idx.toLowerCase());
-
-      let val:any = this.data$[this.pos$][idx];
-      if (val != null) return(+val);
-
-      return(null);
-   }
-
-
-   public getBoolean(idx:number|string) : boolean
-   {
-      if (typeof idx === "string")
-         idx = this.columns$.indexOf(idx.toLowerCase());
-
-      let val:any = this.data$[this.pos$][idx];
-
-      if (typeof val === "boolean")
-         return(val);
-
-      if (typeof val === "string")
-         return(val.toLowerCase() == "true");
-
-      return(null);
+      return(rec);
    }
 }
