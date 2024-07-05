@@ -138,6 +138,9 @@ export class Cursor
    public async close() : Promise<boolean>
    {
       this.more$ = false;
+      
+      if (this.id$ == null)
+         return(true);
 
       let request:any =
       {
