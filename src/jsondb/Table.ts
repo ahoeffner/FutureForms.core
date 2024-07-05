@@ -21,6 +21,9 @@
 
 import { Cursor } from "./Cursor.js";
 import { Session } from "./Session.js";
+import { FilterGroup } from "./filters/FilterGroup.js";
+import { Filter } from "./filters/Filters.js";
+
 
 export class Table
 {
@@ -73,8 +76,11 @@ export class Table
    }
 
 
-   public async executeQuery(columns:string|string[],options?:QueryOptions) : Promise<Cursor>
+   public async executeQuery(columns?:string|string[], filter?:FilterGroup,options?:QueryOptions) : Promise<Cursor>
    {
+      if (!columns)
+         columns = ["*"];
+
       if (!Array.isArray(columns))
          columns = [columns];
 
@@ -111,6 +117,9 @@ export class Table
             }
          }
       }
+
+      if (filter)
+         request.Table["select()"].filters = filter.parse();
 
       if (options.lock || options.nowait)
       {

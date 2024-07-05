@@ -19,9 +19,24 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-
 export class Filters
 {
+   public static IsNull(column:string) : Filter
+   {
+      let filter:Filter = new Filter();
+      filter["type"] = "is null";
+      filter["column"] = column;
+      return(filter);
+   }
+
+   public static IsNotNull(column:string) : Filter
+   {
+      let filter:Filter = new Filter();
+      filter["type"] = "is not null";
+      filter["column"] = column;
+      return(filter);
+   }
+
    public static Equals(column:string, value:any) : Filter
    {
       let filter:Filter = new Filter();
@@ -148,6 +163,7 @@ export class Filters
    }
 }
 
+
 export class Filter
 {
    private type:string;
@@ -159,9 +175,10 @@ export class Filter
    private value:any;
    private values:any[];
 
+
    public parse() : any
    {
-      let parsed:any = {type: this.type};
+      let parsed:any = {filter: this.type};
 
       if (this.column) parsed.column = this.column;
       if (this.columns) parsed.columns = this.columns;
