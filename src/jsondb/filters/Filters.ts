@@ -19,8 +19,85 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+
+export enum WeekDays
+{
+   Sunday,
+   Monday,
+   Tuesday,
+   Wednesday,
+   Thursday,
+   Friday,
+   Saturday
+}
+
+
+export class Dates
+{
+   private static DAY:number = 1000*60*60*24;
+
+
+   public AtThisDay(column:string, date?:Date) : Filter
+   {
+      if (!date) date = new Date();
+      let filter:Filter = new Filter();
+      filter["type"] = "daterange";
+      filter["column"] = column;
+      filter["value"] = date;
+      return(filter);
+   }
+
+   public AtThisWeek(column:string, date:Date, weekstart?:WeekDays) : Filter
+   {
+      if (!weekstart)
+         weekstart = WeekDays.Monday;
+
+      let time:number = date.getTime();
+      let offset:number = date.getDay() - weekstart;
+
+      if (offset < 0) offset = 7 + offset;
+
+      let d1:Date = new Date(time-offset*Dates.DAY);
+      let d2:Date = new Date(d1.getTime() + 7 * Dates.DAY);
+
+      let filter:Filter = new Filter();
+      filter["type"] = "daterange";
+      filter["column"] = column;
+      filter["values"] = [d1,d2];
+      return(filter);
+   }
+
+   public AtThisMonth(column:string, date:Date) : Filter
+   {
+      let d1:Date = new Date(date.getFullYear(),date.getMonth(),1);
+      let d2:Date = new Date(date.getFullYear(),date.getMonth()+1,0,0,0);
+
+      let filter:Filter = new Filter();
+      filter["type"] = "daterange";
+      filter["column"] = column;
+      filter["values"] = [d1,d2];
+      return(filter);
+   }
+
+   public AtThisYear(column:string, date:Date) : Filter
+   {
+      let d1:Date = new Date(date.getFullYear(),0);
+      let d2:Date = new Date(date.getFullYear()+1,0,0,0,0,0,0);
+
+      let filter:Filter = new Filter();
+      filter["type"] = "daterange";
+      filter["column"] = column;
+      filter["values"] = [d1,d2];
+      return(filter);
+   }
+}
+
+
 export class Filters
 {
+
+   public static Dates:Dates = new Dates();
+
    public static IsNull(column:string) : Filter
    {
       let filter:Filter = new Filter();
