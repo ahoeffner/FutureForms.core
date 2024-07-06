@@ -27,6 +27,16 @@ export class FilterGroup
    private entries:Entry[] = [];
 
 
+   public constructor(filters?:Filter|Filter[]|FilterGroup[])
+   {
+      if (filters)
+      {
+         if (!Array.isArray(filters)) filters = [filters];
+         for (let i = 0; i < filters.length; i++) this.add(filters[i]);
+      }
+   }
+
+
    public add(filter:Filter|FilterGroup) : FilterGroup
    {
       this.entries.push(new Entry("and",filter));
@@ -38,15 +48,6 @@ export class FilterGroup
    {
       this.entries.push(new Entry("or",filter));
       return(this);
-   }
-
-
-   public static collapse(filters:Filter|Filter[]|FilterGroup[]) : FilterGroup
-   {
-      let group:FilterGroup = new FilterGroup();
-      if (!Array.isArray(filters)) filters = [filters];
-      for (let i = 0; i < filters.length; i++) group.add(filters[i]);
-      return(group);
    }
 
 

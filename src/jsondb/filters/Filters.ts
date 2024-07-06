@@ -183,18 +183,27 @@ export class Filter
       if (this.column) parsed.column = this.column;
       if (this.columns) parsed.columns = this.columns;
 
-      if (this.value) parsed.value = this.value;
-      if (this.values) parsed.values = this.values;
+      if (this.value) parsed.value = this.dconv(this.value);
+      if (this.values) parsed.values = this.dconv(this.values);
 
       if (this.type == "custom")
       {
          if (this.payload)
          {
             Object.keys(parsed).forEach((attr) =>
-            {parsed[attr] = this.payload[attr];})
+            {parsed[attr] = this.dconv(this.payload[attr])})
          }
       }
 
       return(parsed);
+   }
+
+
+   private dconv(value:any) : any
+   {
+      if (value instanceof Date)
+         value = value.toISOString();
+
+      return(value);
    }
 }
