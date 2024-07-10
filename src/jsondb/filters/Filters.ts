@@ -230,13 +230,24 @@ export class Filters
       return(filter);
    }
 
-   public static Custom(column:string, payload:any) : Filter
+   public static Custom(filter:string, args?:NameValuePair|NameValuePair[]) : Filter
    {
-      let filter:Filter = new Filter();
-      filter["type"] = "custom";
-      filter["payload"] = payload;
-      filter["column"] = column;
-      return(filter);
+      let arr:NameValuePair[] = null;
+
+      if (args)
+      {
+         if (!Array.isArray(args))
+            args = [args];
+
+         arr = args;
+      }
+
+
+      let custom:Filter = new Filter();
+      custom["type"] = "custom";
+      custom["custom"] = filter;
+      custom["args"] = arr;
+      return(custom);
    }
 }
 
@@ -244,13 +255,14 @@ export class Filters
 export class Filter
 {
    private type:string;
-   private payload:any;
+   private custom:string;
 
    private column:string;
    private columns:string[];
 
    private value:any;
    private values:any[];
+   private args:NameValuePair[];
 
 
    public parse() : any
@@ -265,10 +277,12 @@ export class Filter
 
       if (this.type == "custom")
       {
-         if (this.payload)
+         parsed = {custom: this.custom};
+
+         if (this.args)
          {
-            Object.keys(parsed).forEach((attr) =>
-            {parsed[attr] = this.dconv(this.payload[attr])})
+            for (let i = 0; i < this.args.length; i++)
+               parsed[this.args[i].name] = this.dconv(this.args[i].value);
          }
       }
 
@@ -283,4 +297,10 @@ export class Filter
 
       return(value);
    }
+}
+
+
+export class NameValuePair
+{
+   public constructor(public name:string, public value:any) {};
 }

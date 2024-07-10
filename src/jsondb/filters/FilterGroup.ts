@@ -19,12 +19,12 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-import { Filter } from "./Filters";
+import { Filter } from "./Filters.js";
 
 
 export class FilterGroup
 {
-   private entries:Entry[] = [];
+   private entries$:Entry[] = [];
 
 
    public constructor(filters?:Filter|Filter[]|FilterGroup[])
@@ -39,14 +39,14 @@ export class FilterGroup
 
    public add(filter:Filter|FilterGroup) : FilterGroup
    {
-      this.entries.push(new Entry("and",filter));
+      this.entries$.push(new Entry("and",filter));
       return(this);
    }
 
 
    public or(filter:Filter|FilterGroup) : FilterGroup
    {
-      this.entries.push(new Entry("or",filter));
+      this.entries$.push(new Entry("or",filter));
       return(this);
    }
 
@@ -55,15 +55,38 @@ export class FilterGroup
    {
       let parsed:any[] = [];
 
-      if (this.entries.length == 0)
+      if (this.entries$.length == 0)
          return(null);
 
-      parsed.push(this.entries[0].filter.parse());
+      parsed.push(this.entries$[0].filter.parse());
 
-      for (let i = 1; i < this.entries.length; i++)
-         parsed.push({[this.entries[i].opr]: this.entries[i].filter.parse()});
+      for (let i = 1; i < this.entries$.length; i++)
+         parsed.push({[this.entries$[i].opr]: this.entries$[i].filter.parse()});
 
       return(parsed);
+   }
+
+
+   public filters() : Filter[]
+   {
+      let filters:Filter[] = [];
+
+      if (this.entries$.length == 0)
+         return(null);
+
+      for (let i = 0; i < this.entries$.length; i++)
+      {
+         let entry:Entry = this.entries$[i];
+
+         if (entry.filter instanceof Filter)
+         {
+            filters.push(entry.filter);
+         }
+         else
+         {
+            filters.push(...entry.filter.filters());
+         }
+      }
    }
 }
 
