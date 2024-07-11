@@ -21,6 +21,7 @@
 
 import { Session } from "./Session.js";
 import { ColumnDefinition } from "./Table.js";
+import { Dictionary, Record } from "./Record.js";
 
 
 export class Cursor
@@ -34,6 +35,7 @@ export class Cursor
    private id$:string = null;
    private data$:object[][] = [];
    private more$:boolean = false;
+   private dict$:Dictionary = null;
    private columns$:string[] = null;
    private coldef$:Map<string,ColumnDefinition> = null;
 
@@ -47,6 +49,8 @@ export class Cursor
       this.more$ = response.more;
       this.data$ = response.rows;
       this.rows$ = this.data$.length;
+
+      this.dict$ = new Dictionary(this.columns$);
    }
 
 
@@ -138,7 +142,7 @@ export class Cursor
    public async close() : Promise<boolean>
    {
       this.more$ = false;
-      
+
       if (this.id$ == null)
          return(true);
 
@@ -161,26 +165,8 @@ export class Cursor
    }
 
 
-   public get(idx:number|string) : any
+   public fetch() : Record
    {
-      if (typeof idx === "string")
-         idx = this.columns$.indexOf(idx.toLowerCase());
-
-      return(this.data$[this.pos$][idx]);
-   }
-
-
-   public getRecord(lower?:boolean) : Map<string,object>
-   {
-      let rec:Map<string,object> = new Map<string,object>();
-
-      for (let i = 0; i < this.columns$.length; i++)
-      {
-         let col:string = this.columns$[i];
-         if (lower) col = col.toLowerCase();
-         rec.set(col,this.data$[this.pos$][i]);
-      }
-
-      return(rec);
+      return(new Record(this.dict$,this.data$[this.pos$]));
    }
 }
