@@ -242,7 +242,6 @@ export class Filters
          arr = args;
       }
 
-
       let custom:Filter = new Filter();
       custom["type"] = "custom";
       custom["custom"] = filter;
@@ -263,6 +262,40 @@ export class Filter
    private value:any;
    private values:any[];
    private args:NameValuePair[];
+
+
+   public usesArgs() : boolean
+   {
+      if (this.type.indexOf("null") >= 0)
+         return(false);
+
+      return(true);
+   }
+
+
+   public bind(values:any|any[]) : void
+   {
+      if (values == null)
+      {
+         this.args = null;
+         this.value = null;
+         this.values = null;
+         return;
+      }
+
+      if (this.type == "custom")
+      {
+         if (!Array.isArray(values))
+            values = [values];
+
+         this.args = values;
+      }
+      else
+      {
+         if (!Array.isArray(values)) this.value = values;
+           else this.values = values;
+      }
+   }
 
 
    public parse() : any

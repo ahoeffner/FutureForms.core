@@ -67,6 +67,19 @@ export class FilterGroup
    }
 
 
+   public bind(...values:any) : void
+   {
+      let arg:number = 0;
+      let filters:Filter[] = this.filters();
+
+      for (let i = 0; i < filters.length; i++)
+      {
+         if (filters[i].usesArgs())
+            filters[i].bind(values[arg++])
+      }
+   }
+
+
    public filters() : Filter[]
    {
       let filters:Filter[] = [];
@@ -87,6 +100,8 @@ export class FilterGroup
             filters.push(...entry.filter.filters());
          }
       }
+
+      return(filters);
    }
 }
 
