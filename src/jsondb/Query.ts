@@ -96,6 +96,21 @@ export class Query
    {
       await this.table$.describe();
 
+      let request:any = this.createRequest(values);
+      let response:any = await this.session$.invoke(request);
+
+      this.errm$ = response.message;
+      this.success$ = response.success;
+
+      if (response.success)
+         return(new Cursor(this.session$,this.table$.getColumnDefinitions(),response));
+
+      return(null);
+   }
+
+
+   public createRequest(...values:any) : any
+   {
       let request:any =
       {
          "Table":
@@ -126,15 +141,6 @@ export class Query
       if (this.order$ != null)
          request.Table["select()"].order = this.order$;
 
-      let response:any = await this.session$.invoke(request);
-
-
-      this.errm$ = response.message;
-      this.success$ = response.success;
-
-      if (response.success)
-         return(new Cursor(this.session$,this.table$.getColumnDefinitions(),response));
-
-      return(null);
+      return(request);
    }
 }
