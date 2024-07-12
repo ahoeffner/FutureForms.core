@@ -60,6 +60,30 @@ export class Table
    }
 
 
+   public get order() : string
+   {
+      return(this.order$);
+   }
+
+
+   public get source() : string
+   {
+      return(this.source$);
+   }
+
+
+   public get session() : Session
+   {
+      return(this.session$);
+   }
+
+
+   public get arrayfetch() : number
+   {
+      return(this.arrayfetch$);
+   }
+
+
    public setOrder(order:string) : Table
    {
       this.order$ = order;

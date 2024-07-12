@@ -45,8 +45,10 @@ export class Query
       this.table$ = table;
       this.filter$ = filter;
 
-      this.source$ = this.table$["source$"];
-      this.session$ = this.table$["session$"];
+      this.order$ = this.table$.order;
+      this.source$ = this.table$.source;
+      this.session$ = this.table$.session;
+      this.arrayfetch$ = this.table$.arrayfetch;
 
       if (!columns)
          columns = ["*"];
@@ -96,7 +98,7 @@ export class Query
    {
       await this.table$.describe();
 
-      let request:any = this.createRequest(values);
+      let request:any = this.jsonRequest(values);
       let response:any = await this.session$.invoke(request);
 
       this.errm$ = response.message;
@@ -109,7 +111,7 @@ export class Query
    }
 
 
-   public createRequest(...values:any) : any
+   private jsonRequest(...values:any) : any
    {
       let request:any =
       {
