@@ -1,3 +1,4 @@
+export { Query } from './src/jsondb/Query.js';
 export { Table } from './src/jsondb/Table.js';
 export { Cursor } from './src/jsondb/Cursor.js';
 export { Session } from './src/jsondb/Session.js';

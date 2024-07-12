@@ -22,7 +22,6 @@
 import { Cursor } from "./Cursor.js";
 import { Session } from "./Session.js";
 import { FilterGroup } from "./filters/FilterGroup.js";
-import { Filter } from "./filters/Filters.js";
 
 
 export class Table
@@ -37,7 +36,6 @@ export class Table
 
    private order$:string = null;
    private primkey$:string[] = null;
-   private described$:boolean = false;
 
    private coldef$:Map<string,ColumnDefinition> =
       new Map<string,ColumnDefinition>();
@@ -76,6 +74,12 @@ export class Table
    }
 
 
+   public getColumnDefinitions() : Map<string,ColumnDefinition>
+   {
+      return(this.coldef$);
+   }
+
+
    public async executeQuery(columns?:string|string[], filter?:FilterGroup,options?:QueryOptions) : Promise<Cursor>
    {
       if (!columns)
@@ -87,19 +91,8 @@ export class Table
       if (options == null)
          options = {lock: false, nowait: false, close: false};
 
-      if (!this.described$)
-      {
-         let desc:TableDefinition = DefinitionCache.get(this.source$);
-
-         if (desc == null)
-         {
-            desc = await this.describe();
-            DefinitionCache.add(this.source$,desc);
-         }
-
-         if (this.failed())
-            return(null);
-      }
+      await this.describe();
+      if (this.failed()) return(null);
 
       let request:any =
       {
@@ -145,8 +138,14 @@ export class Table
    }
 
 
-   private async describe() : Promise<TableDefinition>
+   public async describe() : Promise<TableDefinition>
    {
+      let definition:TableDefinition =
+         DefinitionCache.get(this.source$);
+
+      if (definition != null)
+         return(definition);
+
       let request:any =
       {
          "Table":
@@ -158,7 +157,6 @@ export class Table
       }
 
       let column:ColumnDefinition = null;
-      let definition:TableDefinition = null;
       let response:any = await this.session$.invoke(request);
 
       this.errm$ = response.message;
@@ -193,6 +191,8 @@ export class Table
 
          definition.columns.forEach((coldef) =>
          {this.coldef$.set(coldef.name.toLowerCase(),coldef)})
+
+         DefinitionCache.add(this.source$,definition);
       }
 
       return(definition);

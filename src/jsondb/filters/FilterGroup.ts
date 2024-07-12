@@ -74,7 +74,7 @@ export class FilterGroup
 
       for (let i = 0; i < filters.length; i++)
       {
-         if (filters[i].usesArgs())
+         if (filters[i].args())
             filters[i].bind(values[arg++])
       }
    }

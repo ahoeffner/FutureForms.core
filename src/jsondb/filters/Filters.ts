@@ -19,6 +19,8 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+import { Query } from "../Query.js";
+
 
 export enum WeekDays
 {
@@ -43,7 +45,7 @@ export class Dates
       let filter:Filter = new Filter();
       filter["type"] = "daterange";
       filter["column"] = column;
-      filter["value"] = date;
+      filter["values"] = [date,date];
       return(filter);
    }
 
@@ -159,7 +161,6 @@ export class Filters
       filter["type"] = type;
       filter["value"] = value;
       filter["column"] = column;
-
       return(filter);
    }
 
@@ -172,7 +173,6 @@ export class Filters
       filter["type"] = type;
       filter["value"] = value;
       filter["column"] = column;
-
       return(filter);
    }
 
@@ -194,7 +194,7 @@ export class Filters
       return(filter);
    }
 
-   public static In(column:string, values:any[]) : Filter
+   public static In(column:string, values:any[]|Query) : Filter
    {
       let filter:Filter = new Filter();
       filter["type"] = "in";
@@ -203,7 +203,7 @@ export class Filters
       return(filter);
    }
 
-   public static NotIn(column:string, values:any[]) : Filter
+   public static NotIn(column:string, values:any[]|Query) : Filter
    {
       let filter:Filter = new Filter();
       filter["type"] = "not in";
@@ -212,7 +212,7 @@ export class Filters
       return(filter);
    }
 
-   public static Exists(column:string, values:any[]) : Filter
+   public static Exists(column:string, values:any[]|Query) : Filter
    {
       let filter:Filter = new Filter();
       filter["type"] = "exists";
@@ -221,7 +221,7 @@ export class Filters
       return(filter);
    }
 
-   public static NotExists(column:string, values:any[]) : Filter
+   public static NotExists(column:string, values:any[]|Query) : Filter
    {
       let filter:Filter = new Filter();
       filter["type"] = "not exists";
@@ -245,7 +245,7 @@ export class Filters
       let custom:Filter = new Filter();
       custom["type"] = "custom";
       custom["custom"] = filter;
-      custom["args"] = arr;
+      custom["custargs"] = arr;
       return(custom);
    }
 }
@@ -259,17 +259,17 @@ export class Filter
    private column:string;
    private columns:string[];
 
-   private value:any;
-   private values:any[];
-   private args:NameValuePair[];
+   private value:any = null;
+   private values:any[]|Query = null;
+   private custargs:NameValuePair[] = null;
 
 
-   public usesArgs() : boolean
+   public args() : boolean
    {
-      if (this.type.indexOf("null") >= 0)
-         return(false);
-
-      return(true);
+      if (this.value != null) return(true);
+      if (this.values != null) return(true);
+      if (this.custargs.length > 0) return(true);
+      return(false);
    }
 
 
@@ -277,7 +277,7 @@ export class Filter
    {
       if (values == null)
       {
-         this.args = null;
+         this.custargs = null;
          this.value = null;
          this.values = null;
          return;
@@ -288,7 +288,7 @@ export class Filter
          if (!Array.isArray(values))
             values = [values];
 
-         this.args = values;
+         this.custargs = values;
       }
       else
       {
@@ -306,16 +306,27 @@ export class Filter
       if (this.columns) parsed.columns = this.columns;
 
       if (this.value) parsed.value = this.dconv(this.value);
-      if (this.values) parsed.values = this.dconv(this.values);
+
+      if (this.values)
+      {
+         if (this.values instanceof Query)
+         {
+            console.log("SubQuery")
+         }
+         else
+         {
+            parsed.values = this.dconv(this.values);
+         }
+      }
 
       if (this.type == "custom")
       {
          parsed = {custom: this.custom};
 
-         if (this.args)
+         if (this.custargs)
          {
-            for (let i = 0; i < this.args.length; i++)
-               parsed[this.args[i].name] = this.dconv(this.args[i].value);
+            for (let i = 0; i < this.custargs.length; i++)
+               parsed[this.custargs[i].name] = this.dconv(this.custargs[i].value);
          }
       }
 
