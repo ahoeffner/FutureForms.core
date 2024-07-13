@@ -311,7 +311,7 @@ export class Filter
       {
          if (this.values instanceof Query)
          {
-            console.log("SubQuery")
+            parsed.Table = this.values.asSubQuery();
          }
          else
          {
@@ -330,6 +330,7 @@ export class Filter
          }
       }
 
+      console.log(JSON.stringify(parsed))
       return(parsed);
    }
 
