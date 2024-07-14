@@ -311,7 +311,7 @@ export class Filter
       {
          if (this.values instanceof Query)
          {
-            parsed.Table = this.values.asSubQuery();
+            parsed.Table = this.values.getBasicRequest();
          }
          else
          {

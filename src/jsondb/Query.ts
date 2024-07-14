@@ -178,7 +178,7 @@ export class Query
    }
 
 
-   public asSubQuery() : any
+   public getBasicRequest() : any
    {
       let request:any =
       {
