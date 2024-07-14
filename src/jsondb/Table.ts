@@ -104,16 +104,13 @@ export class Table
    }
 
 
-   public async executeQuery(columns?:string|string[], filter?:FilterGroup,options?:QueryOptions) : Promise<Cursor>
+   public async executeQuery(columns?:string|string[], filter?:FilterGroup) : Promise<Cursor>
    {
       if (!columns)
          columns = ["*"];
 
       if (!Array.isArray(columns))
          columns = [columns];
-
-      if (options == null)
-         options = {lock: false, nowait: false, close: false};
 
       await this.describe();
       if (this.failed()) return(null);
@@ -137,15 +134,6 @@ export class Table
 
       if (filter)
          request.Table["select()"].filters = filter.parse();
-
-      if (options.lock || options.nowait)
-      {
-         if (!options.nowait) request.Table["select()"]["for-update"] = true;
-         else request.Table["select()"]["for-update-nowait"] = true;
-      }
-
-      if (options.close)
-         request.Table["select()"].cursor = false;
 
       if (this.order$ != null)
          request.Table["select()"].order = this.order$;
@@ -221,14 +209,6 @@ export class Table
 
       return(definition);
    }
-}
-
-
-export interface QueryOptions
-{
-   lock?:boolean;
-   close?:boolean;
-   nowait?:boolean;
 }
 
 

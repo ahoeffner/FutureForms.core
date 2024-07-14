@@ -23,6 +23,7 @@ import { Table } from "./Table.js";
 import { Cursor } from "./Cursor.js";
 import { Session } from "./Session.js";
 import { FilterGroup } from "./filters/FilterGroup.js";
+import { NameValuePair } from "./filters/Filters.js";
 
 
 export class Query
@@ -36,8 +37,11 @@ export class Query
    private columns$:string[];
    private order$:string = null;
    private close$:boolean = false;
+   private update$:boolean = false;
+   private nowait$:boolean = false;
    private arrayfetch$:number = 16;
    private filter$:FilterGroup = null;
+   private assertions:NameValuePair[] = [];
 
 
    public constructor(table:Table, columns?:string|string[], filter?:FilterGroup)
@@ -87,9 +91,37 @@ export class Query
    }
 
 
+   public setLockRows(lock:boolean, nowait?:boolean, assertions?:NameValuePair|NameValuePair[]) : Query
+   {
+      if (nowait == null)
+         nowait = false;
+
+      if (assertions == null)
+         assertions = [];
+
+      if (!Array.isArray(assertions))
+         assertions = [assertions];
+
+      this.update$ = lock;
+      this.nowait$ = nowait;
+      this.assertions = assertions;
+
+      return(this);
+   }
+
+
    public setCloseCursor(close:boolean) : Query
    {
       this.close$ = close;
+      return(this);
+   }
+
+
+   public bind(...values:any) : Query
+   {
+      if (this.filter$)
+         this.filter$.bind(values);
+
       return(this);
    }
 
@@ -117,7 +149,7 @@ export class Query
 
       if (this.filter$)
       {
-         this.filter$.bind(values);
+         if (values) this.filter$.bind(values);
          request.Table["select()"].filters = this.filter$.parse();
       }
 
@@ -127,6 +159,12 @@ export class Query
 
       if (this.order$ != null)
          request.Table["select()"].order = this.order$;
+
+      if (this.update$)
+      {
+         if (!this.nowait$) request.Table["select()"]["for-update"] = true;
+         else request.Table["select()"]["for-update-nowait"] = true;
+      }
 
       let response:any = await this.session$.invoke(request);
 
