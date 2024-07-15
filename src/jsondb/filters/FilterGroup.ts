@@ -70,6 +70,7 @@ export class FilterGroup
    public bind(...values:any) : void
    {
       let arg:number = 0;
+      if (values) values = values[0];
       let filters:Filter[] = this.filters();
 
       for (let i = 0; i < filters.length; i++)
