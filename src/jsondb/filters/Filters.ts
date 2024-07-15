@@ -194,39 +194,51 @@ export class Filters
       return(filter);
    }
 
-   public static In(column:string, values:any[]|Query) : Filter
+   public static In(columns:string|string[], values:any[]|Query) : Filter
    {
+      if (!Array.isArray(columns))
+         columns = [columns];
+
       let filter:Filter = new Filter();
       filter["type"] = "in";
       filter["values"] = values;
-      filter["column"] = column;
+      filter["columns"] = columns;
       return(filter);
    }
 
-   public static NotIn(column:string, values:any[]|Query) : Filter
+   public static NotIn(columns:string|string[], values:any[]|Query) : Filter
    {
+      if (!Array.isArray(columns))
+         columns = [columns];
+
       let filter:Filter = new Filter();
       filter["type"] = "not in";
       filter["values"] = values;
-      filter["column"] = column;
+      filter["columns"] = columns;
       return(filter);
    }
 
-   public static Exists(column:string, values:any[]|Query) : Filter
+   public static Exists(columns:string|string[], values:any[]|Query) : Filter
    {
+      if (!Array.isArray(columns))
+         columns = [columns];
+
       let filter:Filter = new Filter();
       filter["type"] = "exists";
       filter["values"] = values;
-      filter["column"] = column;
+      filter["columns"] = columns;
       return(filter);
    }
 
-   public static NotExists(column:string, values:any[]|Query) : Filter
+   public static NotExists(columns:string|string[], values:any[]|Query) : Filter
    {
+      if (!Array.isArray(columns))
+         columns = [columns];
+
       let filter:Filter = new Filter();
       filter["type"] = "not exists";
       filter["values"] = values;
-      filter["column"] = column;
+      filter["columns"] = columns;
       return(filter);
    }
 
@@ -311,7 +323,7 @@ export class Filter
       {
          if (this.values instanceof Query)
          {
-            parsed.Table = this.values.getBasicRequest();
+            parsed.Table = this.values.getBasicRequest().Table;
          }
          else
          {
@@ -330,7 +342,6 @@ export class Filter
          }
       }
 
-      console.log(JSON.stringify(parsed))
       return(parsed);
    }
 
