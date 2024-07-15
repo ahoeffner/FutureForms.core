@@ -41,7 +41,7 @@ export class Query
    private nowait$:boolean = false;
    private arrayfetch$:number = 16;
    private filter$:FilterGroup = null;
-   private assertions:NameValuePair[] = [];
+   private assertions$:NameValuePair[] = [];
 
 
    public constructor(table:Table, columns?:string|string[], filter?:FilterGroup)
@@ -104,7 +104,7 @@ export class Query
 
       this.update$ = lock;
       this.nowait$ = nowait;
-      this.assertions = assertions;
+      this.assertions$ = assertions;
 
       return(this);
    }
@@ -164,6 +164,16 @@ export class Query
       {
          if (!this.nowait$) request.Table["select()"]["for-update"] = true;
          else request.Table["select()"]["for-update-nowait"] = true;
+      }
+
+      if (this.assertions$.length > 0)
+      {
+         let assrts:any = [];
+
+         this.assertions$.forEach((nvp) =>
+         {assrts.push({column: nvp.name, value: nvp.value});})
+
+         request.Table["select()"].assertions = assrts;
       }
 
       let response:any = await this.session$.invoke(request);
