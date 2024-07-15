@@ -25,17 +25,28 @@ export class Record
    private values$:any[] = [];
 
 
-   public constructor(dictionary:Dictionary, values?:any|any[])
+   public constructor(dictionary?:Dictionary, values?:any|any[])
    {
       this.dict$ = dictionary;
 
       if (values)
       {
-         if (!Array.isArray(values))
-            values = [values];
+         if (!this.dict$)
+         {
+            console.log("VALUES_WITHOUT_DICTIONARY");
+            return;
+         }
+         else
+         {
+            if (!Array.isArray(values))
+               values = [values];
 
-         this.values$.push(...values);
+            this.values$.push(...values);
+         }
       }
+
+      if (!this.dict$)
+         this.dict$ = new Dictionary();
    }
 
 
