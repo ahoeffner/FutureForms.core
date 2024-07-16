@@ -21,32 +21,21 @@
 
 export class Record
 {
-   private dict$:Dictionary;
    private values$:any[] = [];
+   private dict$:RecordDefinition;
 
 
-   public constructor(dictionary?:Dictionary, values?:any|any[])
+   public constructor(dictionary:RecordDefinition, values?:any|any[])
    {
       this.dict$ = dictionary;
 
       if (values)
       {
-         if (!this.dict$)
-         {
-            console.log("VALUES_WITHOUT_DICTIONARY");
-            return;
-         }
-         else
-         {
-            if (!Array.isArray(values))
-               values = [values];
+         if (!Array.isArray(values))
+            values = [values];
 
-            this.values$.push(...values);
-         }
+         this.values$.push(...values);
       }
-
-      if (!this.dict$)
-         this.dict$ = new Dictionary();
    }
 
 
@@ -99,7 +88,7 @@ export class Record
 }
 
 
-export class Dictionary
+export class RecordDefinition
 {
    private columns$:string[] = [];
 
@@ -113,7 +102,7 @@ export class Dictionary
    }
 
 
-   public add(columns:string|string[]) : Dictionary
+   public add(columns:string|string[]) : RecordDefinition
    {
       if (columns == null)
          return(this);
@@ -143,7 +132,7 @@ export class Dictionary
    }
 
 
-   public setColumn(idx:number, column:string) : Dictionary
+   public setColumn(idx:number, column:string) : RecordDefinition
    {
       this.columns$[idx] = column;
       let keys:string[] = Array.from(this.colindx$.keys());

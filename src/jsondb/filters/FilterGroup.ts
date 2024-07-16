@@ -73,6 +73,9 @@ export class FilterGroup
       if (values) values = values[0];
       let filters:Filter[] = this.filters();
 
+      if (values.length == 0)
+         return;
+
       for (let i = 0; i < filters.length; i++)
       {
          if (filters[i].args())

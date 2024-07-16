@@ -19,32 +19,70 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-const version = "3.0.0";
-
-export class FormsModule
+export class Assertion
 {
-   private static language$:string = null;
+   private message$:string = null;
+   private success$:boolean = true;
+   private violations$:Violation[] = [];
 
-   private constructor()
+
+   public parse(response:any) : void
    {
+      this.message$ = response.record;
+      this.success$ = response.success;
+
+      if (response.violations)
+      {
+         response.violations.forEach((assrt) =>
+         {this.violations$.push(new Violation(assrt.column,assrt.expected,assrt.actual))})
+      }
    }
 
-   public static version() : string
+
+   public failed() : boolean
    {
-      return(version);
+      return(!this.success$);
    }
 
 
-   public static get Language() : string
+   public getErrorMessage() : string
    {
-      if (FormsModule.language$)
-         return(FormsModule.language$);
+      return(this.message$);
+   }
 
-      FormsModule.language$ = navigator.language;
-      let pos:number = FormsModule.language$.indexOf("-");
-      if (pos > 0) FormsModule.language$ = FormsModule.language$.substring(0,pos);
-      FormsModule.language$ = FormsModule.language$.toUpperCase();
 
-      return(FormsModule.language$);
+   //public getViolations() :
+}
+
+
+export class Violation
+{
+   actual$:any;
+   expected$:any;
+   column$:string;
+
+   public constructor(column:string, expected:any, actual:any)
+   {
+      this.column$ = column;
+      this.actual$ = actual;
+      this.expected$ = expected;
+   }
+
+
+   public get column() : string
+   {
+      return(this.column$);
+   }
+
+
+   public get actual() : any
+   {
+      return(this.actual$);
+   }
+
+
+   public get expected() : any
+   {
+      return(this.expected$);
    }
 }

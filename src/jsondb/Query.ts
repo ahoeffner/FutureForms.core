@@ -22,14 +22,16 @@
 import { Table } from "./Table.js";
 import { Cursor } from "./Cursor.js";
 import { Session } from "./Session.js";
-import { FilterGroup } from "./filters/FilterGroup.js";
+import { Assertion } from "./Assertion.js";
 import { NameValuePair } from "./filters/Filters.js";
+import { FilterGroup } from "./filters/FilterGroup.js";
 
 
 export class Query
 {
    private errm$:string = null;
    private success$:boolean = true;
+   private assert$:Assertion = new Assertion();
 
    private table$:Table;
    private source$:string;
@@ -77,6 +79,12 @@ export class Query
    }
 
 
+   public getAssertionStatus() : Assertion
+   {
+      return(this.assert$);
+   }
+
+
    public setOrder(order:string) : Query
    {
       this.order$ = order;
@@ -91,20 +99,26 @@ export class Query
    }
 
 
-   public setLockRows(lock:boolean, nowait?:boolean, assertions?:NameValuePair|NameValuePair[]) : Query
+   public setAssertions(assertions?:NameValuePair|NameValuePair[]) : Query
    {
-      if (nowait == null)
-         nowait = false;
-
       if (assertions == null)
          assertions = [];
 
       if (!Array.isArray(assertions))
          assertions = [assertions];
 
+      this.assertions$ = assertions;
+      return(this);
+   }
+
+
+   public setLockRows(lock:boolean, nowait?:boolean) : Query
+   {
+      if (nowait == null)
+         nowait = false;
+
       this.update$ = lock;
       this.nowait$ = nowait;
-      this.assertions$ = assertions;
 
       return(this);
    }
@@ -180,6 +194,9 @@ export class Query
 
       this.errm$ = response.message;
       this.success$ = response.success;
+
+      if (response.assertions)
+         this.assert$.parse(response.assertions);
 
       if (response.success)
          return(new Cursor(this.session$,this.table$.getColumnDefinitions(),response));

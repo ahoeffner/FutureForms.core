@@ -21,7 +21,7 @@
 
 import { Session } from "./Session.js";
 import { ColumnDefinition } from "./Table.js";
-import { Dictionary, Record } from "./Record.js";
+import { RecordDefinition, Record } from "./Record.js";
 
 
 export class Cursor
@@ -35,7 +35,7 @@ export class Cursor
    private id$:string = null;
    private data$:object[][] = [];
    private more$:boolean = false;
-   private dict$:Dictionary = null;
+   private dict$:RecordDefinition = null;
    private columns$:string[] = null;
    private coldef$:Map<string,ColumnDefinition> = null;
 
@@ -50,7 +50,7 @@ export class Cursor
       this.data$ = response.rows;
       this.rows$ = this.data$.length;
 
-      this.dict$ = new Dictionary(this.columns$);
+      this.dict$ = new RecordDefinition(this.columns$);
    }
 
 
