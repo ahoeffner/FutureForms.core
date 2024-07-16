@@ -32,8 +32,6 @@ export class Table
    private source$:string;
    private session$:Session;
 
-   private arrayfetch$:number = 16;
-
    private order$:string = null;
    private primkey$:string[] = null;
 
@@ -78,22 +76,9 @@ export class Table
    }
 
 
-   public get arrayfetch() : number
-   {
-      return(this.arrayfetch$);
-   }
-
-
    public setOrder(order:string) : Table
    {
       this.order$ = order;
-      return(this);
-   }
-
-
-   public setArrayFetch(rows:number) : Table
-   {
-      this.arrayfetch$ = rows;
       return(this);
    }
 
@@ -127,7 +112,7 @@ export class Table
             {
                "heading": true,
                "columns": columns,
-               "page-size": this.arrayfetch$
+               "page-size": 1
             }
          }
       }

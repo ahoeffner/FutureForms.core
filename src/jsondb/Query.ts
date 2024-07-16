@@ -54,7 +54,6 @@ export class Query
       this.order$ = this.table$.order;
       this.source$ = this.table$.source;
       this.session$ = this.table$.session;
-      this.arrayfetch$ = this.table$.arrayfetch;
 
       if (!columns)
          columns = ["*"];

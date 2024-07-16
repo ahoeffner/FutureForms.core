@@ -139,12 +139,56 @@ export class Cursor
    }
 
 
+   public async prefetch(rows?:number) : Promise<number>
+   {
+      if (!this.more$)
+         return(0);
+
+      if (rows == null)
+         rows = this.arrayfetch$;
+
+      let request:any =
+      {
+         "Cursor":
+         {
+            "invoke": "fetch",
+            "session": this.session.guid,
+            "cursor": this.id$
+         }
+      }
+
+      if (rows != null)
+      {
+         request.Cursor["fetch()"] =
+         {"page-size": rows}
+      }
+
+      let response:any = await this.session.invoke(request);
+
+      this.errm$ = response.message;
+      this.success$ = response.success;
+
+      if (response.success)
+      {
+         this.more$ = response.more;
+         this.rows$ += response.rows.length;
+         this.data$.push(...response.rows);
+         return(response.rows.length);
+      }
+
+      return(0);
+   }
+
+
    public async close() : Promise<boolean>
    {
-      this.more$ = false;
+      if (!this.more$)
+         return(true);
 
       if (this.id$ == null)
          return(true);
+
+      this.more$ = false;
 
       let request:any =
       {
