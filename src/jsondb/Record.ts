@@ -39,6 +39,18 @@ export class Record
    }
 
 
+   public get columns() : string[]
+   {
+      return(this.dict$.columns);
+   }
+
+
+   public get values() : any[]
+   {
+      return(this.values$);
+   }
+
+
    public get(column:number|string) : any
    {
       if (typeof column == "string")
@@ -99,6 +111,12 @@ export class RecordDefinition
    public constructor(columns?:string|string[])
    {
       this.add(columns);
+   }
+
+
+   public get columns() : string[]
+   {
+      return(this.columns$);
    }
 
 

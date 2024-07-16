@@ -73,17 +73,38 @@ export class Insert
       {
          "Table":
          {
-            "invoke": "select",
+            "invoke": "insert",
             "source": this.source$,
             "session": this.session$.guid,
 
-            "select()":
+            "insert()":
             {
-               "heading": true,
-               "columns": this.columns$,
-               "page-size": this.arrayfetch$
             }
          }
+      }
+
+      let cols:any = [];
+
+      for (let i = 0; i < record.columns.length; i++)
+      {cols.push({column: record.columns[i], value: record.values[i]})}
+
+      request.Table["insert()"].values = cols;
+
+      let response:any = await this.session$.invoke(request);
+
+      this.errm$ = response.message;
+      this.success$ = response.success;
+
+      if (this.success$ && this.returning$)
+      {
+         let curs:any =
+         {
+            more: false,
+            rows: response.rows,
+            columns: this.returning$
+         }
+
+         return(new Cursor(this.session$,this.table$.getColumnDefinitions(),curs));
       }
 
       return(null);
