@@ -90,6 +90,9 @@ export class Insert
 
       request.Table["insert()"].values = cols;
 
+      if (this.returning$)
+         request.Table["insert()"].returning = this.returning$;
+
       let response:any = await this.session$.invoke(request);
 
       this.errm$ = response.message;
