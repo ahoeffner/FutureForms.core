@@ -35,8 +35,8 @@ export class Cursor
    private id$:string = null;
    private data$:object[][] = [];
    private more$:boolean = false;
-   private dict$:RecordDefinition = null;
    private columns$:string[] = null;
+   private dict$:RecordDefinition = null;
    private coldef$:Map<string,ColumnDefinition> = null;
 
 
