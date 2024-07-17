@@ -25,17 +25,20 @@ export class Record
    private dict$:RecordDefinition;
 
 
-   public constructor(dictionary:RecordDefinition, values?:any|any[])
+   public constructor(dictionary?:RecordDefinition, values?:any|any[])
    {
       this.dict$ = dictionary;
 
-      if (values)
+      if (this.dict$ && values)
       {
          if (!Array.isArray(values))
             values = [values];
 
          this.values$.push(...values);
       }
+
+      if (!this.dict$)
+         this.dict$ = new RecordDefinition();
    }
 
 

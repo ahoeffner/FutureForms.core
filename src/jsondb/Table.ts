@@ -19,7 +19,10 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-import { Cursor } from "./Cursor.js";
+import { Query } from "./Query.js";
+import { Insert } from "./Insert.js";
+import { Update } from "./Update.js";
+import { Delete } from "./Delete.js";
 import { Session } from "./Session.js";
 import { FilterGroup } from "./filters/FilterGroup.js";
 
@@ -89,49 +92,27 @@ export class Table
    }
 
 
-   public async executeQuery(columns?:string|string[], filter?:FilterGroup) : Promise<Cursor>
+   public createInsert() : Insert
    {
-      if (!columns)
-         columns = ["*"];
+      return(new Insert(this));
+   }
 
-      if (!Array.isArray(columns))
-         columns = [columns];
 
-      await this.describe();
-      if (this.failed()) return(null);
+   public createUpdate(filter?:FilterGroup) : Update
+   {
+      return(new Update(this,filter));
+   }
 
-      let request:any =
-      {
-         "Table":
-         {
-            "invoke": "select",
-            "source": this.source$,
-            "session": this.session$.guid,
 
-            "select()":
-            {
-               "heading": true,
-               "columns": columns,
-               "page-size": 1
-            }
-         }
-      }
+   public createDelete(filter?:FilterGroup) : Delete
+   {
+      return(new Delete(this,filter));
+   }
 
-      if (filter)
-         request.Table["select()"].filters = filter.parse();
 
-      if (this.order$ != null)
-         request.Table["select()"].order = this.order$;
-
-      let response:any = await this.session$.invoke(request);
-
-      this.errm$ = response.message;
-      this.success$ = response.success;
-
-      if (response.success)
-         return(new Cursor(this.session$,this.coldef$,response));
-
-      return(null);
+   public createQuery(columns?:string|string[], filter?:FilterGroup) : Query
+   {
+      return(new Query(this,columns,filter));
    }
 
 

@@ -23,22 +23,30 @@ import { Table } from "./Table.js";
 import { Cursor } from "./Cursor.js";
 import { Record } from "./Record.js";
 import { Session } from "./Session.js";
+import { Assertion } from "./Assertion.js";
+import { NameValuePair } from "./filters/Filters.js";
+import { FilterGroup } from "./filters/FilterGroup.js";
 
-export class Insert
+export class Update
 {
    private errm$:string = null;
    private affected$:number = 0;
    private success$:boolean = true;
+   private assert$:Assertion = new Assertion();
 
    private table$:Table;
    private source$:string;
    private session$:Session;
+   private filter$:FilterGroup = null;
    private returning$:string[] = null;
+   private assertions$:NameValuePair[] = [];
 
 
-   public constructor(table:Table)
+   public constructor(table:Table, filter?:FilterGroup)
    {
       this.table$ = table;
+      this.filter$ = filter;
+
       this.source$ = this.table$.source;
       this.session$ = this.table$.session;
    }
@@ -62,7 +70,35 @@ export class Insert
    }
 
 
-   public setReturnColumns(columns:string|string[]) : Insert
+   public getAssertionStatus() : Assertion
+   {
+      return(this.assert$);
+   }
+
+
+   public setAssertions(assertions?:NameValuePair|NameValuePair[]) : Update
+   {
+      if (assertions == null)
+         assertions = [];
+
+      if (!Array.isArray(assertions))
+         assertions = [assertions];
+
+      this.assertions$ = assertions;
+      return(this);
+   }
+
+
+   public bind(...values:any) : Update
+   {
+      if (this.filter$)
+         this.filter$.bind(values);
+
+      return(this);
+   }
+
+
+   public setReturnColumns(columns:string|string[]) : Update
    {
       if (!Array.isArray(columns))
          columns = [columns];
@@ -72,7 +108,7 @@ export class Insert
    }
 
 
-   public async execute(record:Record) : Promise<Cursor>
+   public async execute(record:Record, ...values:any) : Promise<Cursor>
    {
       this.affected$ = 0;
       await this.table$.describe();
@@ -81,25 +117,41 @@ export class Insert
       {
          "Table":
          {
-            "invoke": "insert",
+            "invoke": "update",
             "source": this.source$,
             "session": this.session$.guid,
 
-            "insert()":
+            "update()":
             {
             }
          }
       }
 
-      let cols:any = [];
+      let set:any = [];
 
       for (let i = 0; i < record.columns.length; i++)
-      {cols.push({column: record.columns[i], value: record.values[i]})}
+      {set.push({column: record.columns[i], value: record.values[i]})}
 
-      request.Table["insert()"].values = cols;
+      request.Table["update()"].set = set;
+
+      if (this.filter$)
+      {
+         if (values) this.filter$.bind(values);
+         request.Table["update()"].filters = this.filter$.parse();
+      }
 
       if (this.returning$)
-         request.Table["insert()"].returning = this.returning$;
+         request.Table["update()"].returning = this.returning$;
+
+      if (this.assertions$.length > 0)
+      {
+         let assrts:any = [];
+
+         this.assertions$.forEach((nvp) =>
+         {assrts.push({column: nvp.name, value: nvp.value});})
+
+         request.Table["update()"].assertions = assrts;
+      }
 
       let response:any = await this.session$.invoke(request);
 
@@ -108,6 +160,9 @@ export class Insert
 
       if (this.success$)
          this.affected$ = response.affected;
+
+      if (response.assertions)
+         this.assert$.parse(response.assertions);
 
       if (this.success$ && this.returning$)
       {

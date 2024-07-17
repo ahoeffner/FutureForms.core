@@ -1,6 +1,8 @@
 export { Query } from './src/jsondb/Query.js';
 export { Table } from './src/jsondb/Table.js';
 export { Insert } from './src/jsondb/Insert.js';
+export { Update } from './src/jsondb/Update.js';
+export { Delete } from './src/jsondb/Delete.js';
 export { Cursor } from './src/jsondb/Cursor.js';
 export { Session } from './src/jsondb/Session.js';
 export { FormsModule } from './src/FormsModule.js';
