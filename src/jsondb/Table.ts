@@ -23,7 +23,10 @@ import { Query } from "./Query.js";
 import { Insert } from "./Insert.js";
 import { Update } from "./Update.js";
 import { Delete } from "./Delete.js";
+import { Record } from "./Record.js";
+import { Cursor } from "./Cursor.js";
 import { Session } from "./Session.js";
+import { NameValuePair } from "./filters/Filters.js";
 import { FilterGroup } from "./filters/FilterGroup.js";
 
 
@@ -38,14 +41,17 @@ export class Table
    private order$:string = null;
    private primkey$:string[] = null;
 
+   private bindvalues$:NameValuePair[] = null;
+
    private coldef$:Map<string,ColumnDefinition> =
       new Map<string,ColumnDefinition>();
 
 
-   public constructor(session:Session, source:string)
+   public constructor(session:Session, source:string, bindvalues?:NameValuePair[])
    {
       this.source$ = source;
       this.session$ = session;
+      this.bindvalues$ = bindvalues;
    }
 
 
@@ -76,6 +82,12 @@ export class Table
    public get session() : Session
    {
       return(this.session$);
+   }
+
+
+   public get bindvalues() : NameValuePair[]
+   {
+      return(this.bindvalues$);
    }
 
 
@@ -113,6 +125,58 @@ export class Table
    public createQuery(columns?:string|string[], filter?:FilterGroup) : Query
    {
       return(new Query(this,columns,filter));
+   }
+
+
+   public async insert(record:Record) : Promise<boolean>
+   {
+      let ins:Insert = new Insert(this);
+
+      await ins.execute(record);
+      this.success$ = !ins.failed();
+      this.errm$ = ins.getErrorMessage();
+
+      return(this.success$);
+   }
+
+
+   public async update(record:Record, filter?:FilterGroup) : Promise<boolean>
+   {
+      let upd:Update = new Update(this,filter);
+
+      await upd.execute(record);
+      this.success$ = !upd.failed();
+      this.errm$ = upd.getErrorMessage();
+
+      return(this.success$);
+   }
+
+
+   public async delete(filter?:FilterGroup) : Promise<boolean>
+   {
+      let del:Delete = new Delete(this,filter);
+
+      await del.execute();
+      this.success$ = !del.failed();
+      this.errm$ = del.getErrorMessage();
+
+      return(this.success$);
+   }
+
+
+   public async select(columns?:string|string[], filter?:FilterGroup, rows?:number) : Promise<Cursor>
+   {
+      if (rows == null) rows = 1;
+
+      let sel:Query = new Query(this,columns,filter).
+        setArrayFetch(rows).setOrder(this.order$);
+
+      let cursor:Cursor = await sel.execute();
+
+      this.success$ = !sel.failed();
+      this.errm$ = sel.getErrorMessage();
+
+      return(cursor);
    }
 
 

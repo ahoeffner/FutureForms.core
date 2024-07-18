@@ -42,6 +42,7 @@ export class Query
    private update$:boolean = false;
    private nowait$:boolean = false;
    private arrayfetch$:number = 16;
+   private savepoint$:boolean = null;
    private filter$:FilterGroup = null;
    private assertions$:NameValuePair[] = [];
 
@@ -139,6 +140,13 @@ export class Query
    }
 
 
+   public setSavePoint(flag:boolean) : Query
+   {
+      this.savepoint$ = flag;
+      return(this);
+   }
+
+
    public async execute(...values:any)  : Promise<Cursor>
    {
       await this.table$.describe();
@@ -159,6 +167,12 @@ export class Query
             }
          }
       }
+
+      if (this.table$.bindvalues)
+         request.Table.bindvalues = this.table$.bindvalues;
+
+      if (this.savepoint$ != null)
+         request.Table["select()"].savepoint = this.savepoint$;
 
       if (this.filter$)
       {

@@ -33,6 +33,7 @@ export class Insert
    private table$:Table;
    private source$:string;
    private session$:Session;
+   private savepoint$:boolean = null;
    private returning$:string[] = null;
 
 
@@ -59,6 +60,13 @@ export class Insert
    public affected() : number
    {
       return(this.affected$);
+   }
+
+
+   public setSavePoint(flag:boolean) : Insert
+   {
+      this.savepoint$ = flag;
+      return(this);
    }
 
 
@@ -90,6 +98,12 @@ export class Insert
             }
          }
       }
+
+      if (this.table$.bindvalues)
+         request.Table.bindvalues = this.table$.bindvalues;
+
+      if (this.savepoint$ != null)
+         request.Table["insert()"].savepoint = this.savepoint$;
 
       let cols:any = [];
 

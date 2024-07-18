@@ -37,6 +37,7 @@ export class Update
    private table$:Table;
    private source$:string;
    private session$:Session;
+   private savepoint$:boolean = null;
    private filter$:FilterGroup = null;
    private returning$:string[] = null;
    private assertions$:NameValuePair[] = [];
@@ -98,6 +99,13 @@ export class Update
    }
 
 
+   public setSavePoint(flag:boolean) : Update
+   {
+      this.savepoint$ = flag;
+      return(this);
+   }
+
+
    public setReturnColumns(columns:string|string[]) : Update
    {
       if (!Array.isArray(columns))
@@ -126,6 +134,12 @@ export class Update
             }
          }
       }
+
+      if (this.table$.bindvalues)
+         request.Table.bindvalues = this.table$.bindvalues;
+
+      if (this.savepoint$ != null)
+         request.Table["update()"].savepoint = this.savepoint$;
 
       let set:any = [];
 

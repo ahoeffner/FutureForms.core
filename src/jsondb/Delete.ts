@@ -36,6 +36,7 @@ export class Delete
    private table$:Table;
    private source$:string;
    private session$:Session;
+   private savepoint$:boolean = null;
    private filter$:FilterGroup = null;
    private returning$:string[] = null;
    private assertions$:NameValuePair[] = [];
@@ -97,6 +98,13 @@ export class Delete
    }
 
 
+   public setSavePoint(flag:boolean) : Delete
+   {
+      this.savepoint$ = flag;
+      return(this);
+   }
+
+
    public setReturnColumns(columns:string|string[]) : Delete
    {
       if (!Array.isArray(columns))
@@ -125,6 +133,12 @@ export class Delete
             }
          }
       }
+
+      if (this.table$.bindvalues)
+         request.Table.bindvalues = this.table$.bindvalues;
+
+      if (this.savepoint$ != null)
+         request.Table["delete()"].savepoint = this.savepoint$;
 
       if (this.filter$)
       {
