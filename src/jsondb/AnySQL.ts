@@ -22,6 +22,7 @@
 import { Cursor } from "./Cursor.js";
 import { Record } from "./Record.js";
 import { Session } from "./Session.js";
+import { ColumnDefinition } from "./Table.js";
 import { NameValuePair } from "./filters/Filters.js";
 
 
@@ -38,11 +39,18 @@ export class AnySQL
    private bindvalues$:NameValuePair[] = null;
 
 
-   public constructor(session:Session, source:string, bindvalues?:NameValuePair[])
+   public constructor(session:Session, source:string, bindvalues?:NameValuePair|NameValuePair[])
    {
       this.source$ = source;
       this.session$ = session;
-      this.bindvalues$ = bindvalues;
+
+      if (bindvalues != null)
+      {
+         if (!Array.isArray(bindvalues))
+            bindvalues = [bindvalues];
+
+         this.bindvalues$ = bindvalues;
+      }
    }
 
 
@@ -84,10 +92,10 @@ export class AnySQL
       }
 
       if (this.bindvalues$)
-         request.Table.bindvalues = this.bindvalues$;
+         request.Sql.bindvalues = this.bindvalues$;
 
       if (this.savepoint$ != null)
-         request.Table.savepoint = this.savepoint$;
+         request.Sql.savepoint = this.savepoint$;
 
       let response:any = await this.session$.invoke(request);
 
@@ -114,10 +122,10 @@ export class AnySQL
       }
 
       if (this.bindvalues$)
-         request.Table.bindvalues = this.bindvalues$;
+         request.Sql.bindvalues = this.bindvalues$;
 
       if (this.savepoint$ != null)
-         request.Table.savepoint = this.savepoint$;
+         request.Sql.savepoint = this.savepoint$;
 
       let response:any = await this.session$.invoke(request);
 
@@ -144,10 +152,10 @@ export class AnySQL
       }
 
       if (this.bindvalues$)
-         request.Table.bindvalues = this.bindvalues$;
+         request.Sql.bindvalues = this.bindvalues$;
 
       if (this.savepoint$ != null)
-         request.Table.savepoint = this.savepoint$;
+         request.Sql.savepoint = this.savepoint$;
 
       let response:any = await this.session$.invoke(request);
 
@@ -161,8 +169,62 @@ export class AnySQL
    }
 
 
-   public async select(record:Record) : Promise<boolean>
+   public async select(arrayfetch?:number) : Promise<Cursor>
    {
-      return(this.success$);
+      if (arrayfetch == null)
+         arrayfetch = 1;
+
+      let request:any =
+      {
+         "Sql":
+         {
+            "invoke": "select",
+            "source": this.source$,
+            "session": this.session$.guid,
+
+            "select()":
+            {
+               "page-size": arrayfetch
+            }
+         }
+      }
+
+      if (this.bindvalues$)
+         request.Sql.bindvalues = this.bindvalues$;
+
+      if (this.savepoint$ != null)
+         request.Sql.savepoint = this.savepoint$;
+
+      let response:any = await this.session$.invoke(request);
+
+      this.errm$ = response.message;
+      this.success$ = response.success;
+
+      if (response.success)
+      {
+         let cols:string[] = [];
+         let column:ColumnDefinition = null;
+
+         let columns:Map<string,ColumnDefinition> =
+            new Map<string,ColumnDefinition>();
+
+         response.columns.forEach(coldef =>
+         {
+            column = new ColumnDefinition();
+
+            column.name = coldef.name;
+            column.type = coldef.type;
+            column.sqltype = coldef.sqltype;
+            column.precision = coldef.precision;
+
+            cols.push(column.name);
+            columns.set(column.name.toLowerCase(),column);
+         });
+
+         response.columns = cols;
+         return(new Cursor(this.session$,columns,response));
+      }
+
+      return(null);
    }
 }

@@ -183,7 +183,6 @@ export class Query
       if (this.close$)
          request.Table["select()"].cursor = false;
 
-
       if (this.order$ != null)
          request.Table["select()"].order = this.order$;
 
