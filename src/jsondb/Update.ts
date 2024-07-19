@@ -30,9 +30,11 @@ import { FilterGroup } from "./filters/FilterGroup.js";
 export class Update
 {
    private errm$:string = null;
-   private affected$:number = 0;
    private success$:boolean = true;
    private assert$:Assertion = new Assertion();
+
+   private affected$:number = 0;
+   private cursor$:Cursor = null;
 
    private table$:Table;
    private source$:string;
@@ -68,6 +70,12 @@ export class Update
    public affected() : number
    {
       return(this.affected$);
+   }
+
+
+   public getReturnValues() : Cursor
+   {
+      return(this.cursor$);
    }
 
 
@@ -116,9 +124,11 @@ export class Update
    }
 
 
-   public async execute(record:Record, ...values:any) : Promise<Cursor>
+   public async execute(record:Record, ...values:any) : Promise<boolean>
    {
       this.affected$ = 0;
+      this.cursor$ = null;
+
       await this.table$.describe();
 
       let request:any =
@@ -187,9 +197,9 @@ export class Update
             columns: this.returning$
          }
 
-         return(new Cursor(this.session$,this.table$.getColumnDefinitions(),curs));
+         this.cursor$ = new Cursor(this.session$,this.table$.getColumnDefinitions(),curs);
       }
 
-      return(null);
+      return(this.success$);
    }
 }

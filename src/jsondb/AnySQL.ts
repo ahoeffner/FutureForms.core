@@ -19,9 +19,10 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-import { NameValuePair } from "./filters/Filters.js";
+import { Cursor } from "./Cursor.js";
 import { Record } from "./Record.js";
 import { Session } from "./Session.js";
+import { NameValuePair } from "./filters/Filters.js";
 
 
 export class AnySQL
@@ -29,8 +30,14 @@ export class AnySQL
    private errm$:string = null;
    private success$:boolean = true;
 
+   private affected$:number = 0;
+   private cursor$:Cursor = null;
+
    private source$:string;
    private session$:Session;
+
+   private savepoint$:boolean = null;
+   private returning$:string[] = null;
 
    private bindvalues$:NameValuePair[] = null;
 
@@ -55,11 +62,40 @@ export class AnySQL
    }
 
 
+   public affected() : number
+   {
+      return(this.affected$);
+   }
+
+
+   public getReturnValues() : Cursor
+   {
+      return(this.cursor$);
+   }
+
+
+   public setSavePoint(flag:boolean) : AnySQL
+   {
+      this.savepoint$ = flag;
+      return(this);
+   }
+
+
+   public setReturnColumns(columns:string|string[]) : AnySQL
+   {
+      if (!Array.isArray(columns))
+         columns = [columns];
+
+      this.returning$ = columns;
+      return(this);
+   }
+
+
    public async insert(record:Record) : Promise<boolean>
    {
       let request:any =
       {
-         "Table":
+         "Sql":
          {
             "invoke": "insert",
             "source": this.source$,
@@ -73,6 +109,20 @@ export class AnySQL
 
       if (this.bindvalues$)
          request.Table.bindvalues = this.bindvalues$;
+
+      if (this.savepoint$ != null)
+         request.Table["insert()"].savepoint = this.savepoint$;
+
+      if (this.returning$)
+         request.Table["insert()"].returning = this.returning$;
+
+      let response:any = await this.session$.invoke(request);
+
+      this.errm$ = response.message;
+      this.success$ = response.success;
+
+      if (this.success$)
+         this.affected$ = response.affected;
 
       return(this.success$);
    }

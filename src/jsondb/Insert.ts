@@ -27,8 +27,10 @@ import { Session } from "./Session.js";
 export class Insert
 {
    private errm$:string = null;
-   private affected$:number = 0;
    private success$:boolean = true;
+
+   private affected$:number = 0;
+   private cursor$:Cursor = null;
 
    private table$:Table;
    private source$:string;
@@ -63,6 +65,12 @@ export class Insert
    }
 
 
+   public getReturnValues() : Cursor
+   {
+      return(this.cursor$);
+   }
+
+
    public setSavePoint(flag:boolean) : Insert
    {
       this.savepoint$ = flag;
@@ -80,9 +88,11 @@ export class Insert
    }
 
 
-   public async execute(record:Record) : Promise<Cursor>
+   public async execute(record:Record) : Promise<boolean>
    {
       this.affected$ = 0;
+      this.cursor$ = null;
+
       await this.table$.describe();
 
       let request:any =
@@ -132,9 +142,9 @@ export class Insert
             columns: this.returning$
          }
 
-         return(new Cursor(this.session$,this.table$.getColumnDefinitions(),curs));
+         this.cursor$ = new Cursor(this.session$,this.table$.getColumnDefinitions(),curs);
       }
 
-      return(null);
+      return(this.success$);
    }
 }

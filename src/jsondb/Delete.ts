@@ -29,9 +29,11 @@ import { FilterGroup } from "./filters/FilterGroup.js";
 export class Delete
 {
    private errm$:string = null;
-   private affected$:number = 0;
    private success$:boolean = true;
    private assert$:Assertion = new Assertion();
+
+   private affected$:number = 0;
+   private cursor$:Cursor = null;
 
    private table$:Table;
    private source$:string;
@@ -67,6 +69,12 @@ export class Delete
    public affected() : number
    {
       return(this.affected$);
+   }
+
+
+   public getReturnValues() : Cursor
+   {
+      return(this.cursor$);
    }
 
 
@@ -115,9 +123,11 @@ export class Delete
    }
 
 
-   public async execute(...values:any)  : Promise<Cursor>
+   public async execute(...values:any)  : Promise<boolean>
    {
       this.affected$ = 0;
+      this.cursor$ = null;
+      
       await this.table$.describe();
 
       let request:any =
@@ -179,9 +189,9 @@ export class Delete
             columns: this.returning$
          }
 
-         return(new Cursor(this.session$,this.table$.getColumnDefinitions(),curs));
+         this.cursor$ = new Cursor(this.session$,this.table$.getColumnDefinitions(),curs);
       }
 
-      return(null);
+      return(this.success$);
    }
 }
