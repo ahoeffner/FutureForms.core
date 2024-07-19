@@ -28,17 +28,13 @@ import { NameValuePair } from "./filters/Filters.js";
 export class AnySQL
 {
    private errm$:string = null;
-   private success$:boolean = true;
-
    private affected$:number = 0;
-   private cursor$:Cursor = null;
+   private success$:boolean = true;
 
    private source$:string;
    private session$:Session;
 
    private savepoint$:boolean = null;
-   private returning$:string[] = null;
-
    private bindvalues$:NameValuePair[] = null;
 
 
@@ -68,25 +64,9 @@ export class AnySQL
    }
 
 
-   public getReturnValues() : Cursor
-   {
-      return(this.cursor$);
-   }
-
-
    public setSavePoint(flag:boolean) : AnySQL
    {
       this.savepoint$ = flag;
-      return(this);
-   }
-
-
-   public setReturnColumns(columns:string|string[]) : AnySQL
-   {
-      if (!Array.isArray(columns))
-         columns = [columns];
-
-      this.returning$ = columns;
       return(this);
    }
 
@@ -99,11 +79,7 @@ export class AnySQL
          {
             "invoke": "insert",
             "source": this.source$,
-            "session": this.session$.guid,
-
-            "insert()":
-            {
-            }
+            "session": this.session$.guid
          }
       }
 
@@ -111,10 +87,7 @@ export class AnySQL
          request.Table.bindvalues = this.bindvalues$;
 
       if (this.savepoint$ != null)
-         request.Table["insert()"].savepoint = this.savepoint$;
-
-      if (this.returning$)
-         request.Table["insert()"].returning = this.returning$;
+         request.Table.savepoint = this.savepoint$;
 
       let response:any = await this.session$.invoke(request);
 
@@ -123,18 +96,6 @@ export class AnySQL
 
       if (this.success$)
          this.affected$ = response.affected;
-
-      if (this.success$ && this.returning$)
-         {
-            let curs:any =
-            {
-               more: false,
-               rows: response.rows,
-               columns: this.returning$
-            }
-
-            //this.cursor$ = new Cursor(this.session$,this.table$.getColumnDefinitions(),curs);
-         }
 
       return(this.success$);
    }
@@ -148,11 +109,7 @@ export class AnySQL
          {
             "invoke": "update",
             "source": this.source$,
-            "session": this.session$.guid,
-
-            "update()":
-            {
-            }
+            "session": this.session$.guid
          }
       }
 
@@ -160,10 +117,7 @@ export class AnySQL
          request.Table.bindvalues = this.bindvalues$;
 
       if (this.savepoint$ != null)
-         request.Table["update()"].savepoint = this.savepoint$;
-
-      if (this.returning$)
-         request.Table["update()"].returning = this.returning$;
+         request.Table.savepoint = this.savepoint$;
 
       let response:any = await this.session$.invoke(request);
 
@@ -185,11 +139,7 @@ export class AnySQL
          {
             "invoke": "delete",
             "source": this.source$,
-            "session": this.session$.guid,
-
-            "delete()":
-            {
-            }
+            "session": this.session$.guid
          }
       }
 
@@ -197,10 +147,7 @@ export class AnySQL
          request.Table.bindvalues = this.bindvalues$;
 
       if (this.savepoint$ != null)
-         request.Table["delete()"].savepoint = this.savepoint$;
-
-      if (this.returning$)
-         request.Table["delete()"].returning = this.returning$;
+         request.Table.savepoint = this.savepoint$;
 
       let response:any = await this.session$.invoke(request);
 
