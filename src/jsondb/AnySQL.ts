@@ -124,18 +124,92 @@ export class AnySQL
       if (this.success$)
          this.affected$ = response.affected;
 
+      if (this.success$ && this.returning$)
+         {
+            let curs:any =
+            {
+               more: false,
+               rows: response.rows,
+               columns: this.returning$
+            }
+
+            //this.cursor$ = new Cursor(this.session$,this.table$.getColumnDefinitions(),curs);
+         }
+
       return(this.success$);
    }
 
 
    public async update(record:Record) : Promise<boolean>
    {
+      let request:any =
+      {
+         "Sql":
+         {
+            "invoke": "update",
+            "source": this.source$,
+            "session": this.session$.guid,
+
+            "update()":
+            {
+            }
+         }
+      }
+
+      if (this.bindvalues$)
+         request.Table.bindvalues = this.bindvalues$;
+
+      if (this.savepoint$ != null)
+         request.Table["update()"].savepoint = this.savepoint$;
+
+      if (this.returning$)
+         request.Table["update()"].returning = this.returning$;
+
+      let response:any = await this.session$.invoke(request);
+
+      this.errm$ = response.message;
+      this.success$ = response.success;
+
+      if (this.success$)
+         this.affected$ = response.affected;
+
       return(this.success$);
    }
 
 
    public async delete(record:Record) : Promise<boolean>
    {
+      let request:any =
+      {
+         "Sql":
+         {
+            "invoke": "delete",
+            "source": this.source$,
+            "session": this.session$.guid,
+
+            "delete()":
+            {
+            }
+         }
+      }
+
+      if (this.bindvalues$)
+         request.Table.bindvalues = this.bindvalues$;
+
+      if (this.savepoint$ != null)
+         request.Table["delete()"].savepoint = this.savepoint$;
+
+      if (this.returning$)
+         request.Table["delete()"].returning = this.returning$;
+
+      let response:any = await this.session$.invoke(request);
+
+      this.errm$ = response.message;
+      this.success$ = response.success;
+
+      if (this.success$)
+         this.affected$ = response.affected;
+
       return(this.success$);
    }
 
