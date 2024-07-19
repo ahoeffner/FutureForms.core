@@ -164,10 +164,16 @@ export class Table
    }
 
 
-   public async select(columns?:string|string[], filter?:FilterGroup) : Promise<Cursor>
+   public async select(columns?:string|string[], filter?:FilterGroup, close?:boolean, arrayfetch?:number) : Promise<Cursor>
    {
-      let sel:Query = new Query(this,columns,filter).
-        setArrayFetch(1).setOrder(this.order$);
+      if (close == null)
+         close = false;
+
+      if (arrayfetch == null)
+         arrayfetch = 1;
+
+      let sel:Query = new Query(this,columns,filter);
+      sel.setArrayFetch(arrayfetch).setOrder(this.order$).setCloseCursor(close);
 
       let cursor:Cursor = await sel.execute();
 
