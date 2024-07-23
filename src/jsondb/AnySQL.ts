@@ -169,8 +169,11 @@ export class AnySQL
    }
 
 
-   public async select(arrayfetch?:number) : Promise<Cursor>
+   public async select(close?:boolean, arrayfetch?:number) : Promise<Cursor>
    {
+      if (close == null)
+         close = false;
+
       if (arrayfetch == null)
          arrayfetch = 1;
 
@@ -194,6 +197,9 @@ export class AnySQL
 
       if (this.savepoint$ != null)
          request.Sql.savepoint = this.savepoint$;
+
+      if (close)
+         request.Sql["select()"].cursor = false;
 
       let response:any = await this.session$.invoke(request);
 
