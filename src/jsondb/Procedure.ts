@@ -19,31 +19,30 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-import { Table } from "./Table.js";
-import { Cursor } from "./Cursor.js";
-import { Record } from "./Record.js";
 import { Session } from "./Session.js";
+import { ColumnDefinition } from "./Table.js";
+import { NameValuePair } from "./filters/Filters.js";
 
-export class Insert
+
+export class Procedure
 {
    private errm$:string = null;
    private success$:boolean = true;
 
-   private affected$:number = 0;
-   private cursor$:Cursor = null;
-
-   private table$:Table;
    private source$:string;
    private session$:Session;
+
+   protected retval$:string = null;
    private savepoint$:boolean = null;
-   private returning$:string[] = null;
+
+   private values$:Map<string,ColumnDefinition> =
+      new Map<string,ColumnDefinition>();
 
 
-   public constructor(table:Table)
+   public constructor(session:Session, source:string)
    {
-      this.table$ = table;
-      this.source$ = this.table$.source;
-      this.session$ = this.table$.session;
+      this.source$ = source;
+      this.session$ = session;
    }
 
 
@@ -59,90 +58,63 @@ export class Insert
    }
 
 
-   public affected() : number
-   {
-      return(this.affected$);
-   }
-
-
-   public getReturnValues() : Cursor
-   {
-      return(this.cursor$);
-   }
-
-
-   public useSavePoint(flag:boolean) : Insert
+   public useSavePoint(flag:boolean) : Procedure
    {
       this.savepoint$ = flag;
       return(this);
    }
 
 
-   public setReturnColumns(columns:string|string[]) : Insert
+   public getValue(name:string) : any
    {
-      if (!Array.isArray(columns))
-         columns = [columns];
-
-      this.returning$ = columns;
-      return(this);
+      return(this.values$.get(name.toLowerCase()));
    }
 
 
-   public async execute(record:Record) : Promise<boolean>
+   public async execute(parameters?:NameValuePair|NameValuePair[]) : Promise<boolean>
    {
-      this.affected$ = 0;
-      this.cursor$ = null;
-
-      await this.table$.describe();
-
       let request:any =
       {
-         "Table":
+         "Call":
          {
-            "invoke": "insert",
+            "invoke": "execute",
             "source": this.source$,
-            "session": this.session$.guid,
-
-            "insert()":
-            {
-            }
+            "session": this.session$.guid
          }
       }
 
-      if (this.table$.bindvalues)
-         request.Table.bindvalues = this.table$.bindvalues;
+      if (parameters != null)
+      {
+         if (!Array.isArray(parameters))
+            parameters = [parameters];
+
+         request.Call.bindvalues = parameters;
+      }
 
       if (this.savepoint$ != null)
-         request.Table["insert()"].savepoint = this.savepoint$;
-
-      let cols:any = [];
-
-      for (let i = 0; i < record.columns.length; i++)
-      {cols.push({column: record.columns[i], value: record.values[i]})}
-
-      request.Table["insert()"].values = cols;
-
-      if (this.returning$)
-         request.Table["insert()"].returning = this.returning$;
+         request.Call["execute()"].savepoint = this.savepoint$;
 
       let response:any = await this.session$.invoke(request);
 
       this.errm$ = response.message;
       this.success$ = response.success;
+      let parameter:ColumnDefinition = null;
 
       if (this.success$)
-         this.affected$ = response.affected;
-
-      if (this.success$ && this.returning$)
       {
-         let curs:any =
+         response.values?.forEach((parm) =>
          {
-            more: false,
-            rows: response.rows,
-            columns: this.returning$
-         }
+            parameter = new ColumnDefinition();
 
-         this.cursor$ = new Cursor(this.session$,this.table$.getColumnDefinitions(),curs);
+            parameter.name = parm.name;
+            parameter.type = parm.type;
+            parameter.sqltype = parm.sqltype;
+            parameter.precision = parm.precision;
+
+            this.values$.set(parm.name.toLowerCase(),parameter);
+         })
+
+         this.retval$ = response.returns;
       }
 
       return(this.success$);

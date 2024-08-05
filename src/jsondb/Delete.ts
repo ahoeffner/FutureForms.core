@@ -106,7 +106,7 @@ export class Delete
    }
 
 
-   public setSavePoint(flag:boolean) : Delete
+   public useSavePoint(flag:boolean) : Delete
    {
       this.savepoint$ = flag;
       return(this);
@@ -127,7 +127,7 @@ export class Delete
    {
       this.affected$ = 0;
       this.cursor$ = null;
-      
+
       await this.table$.describe();
 
       let request:any =

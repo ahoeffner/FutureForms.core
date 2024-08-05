@@ -140,7 +140,7 @@ export class Query
    }
 
 
-   public setSavePoint(flag:boolean) : Query
+   public useSavePoint(flag:boolean) : Query
    {
       this.savepoint$ = flag;
       return(this);

@@ -6,6 +6,9 @@ export { Delete } from './src/jsondb/Delete.js';
 export { AnySQL } from './src/jsondb/AnySQL.js';
 export { Cursor } from './src/jsondb/Cursor.js';
 export { Session } from './src/jsondb/Session.js';
+export { Function } from './src/jsondb/Function.js';
+export { Procedure } from './src/jsondb/Procedure.js';
+
 export { FormsModule } from './src/FormsModule.js';
 
 export { TableDefinition } from './src/jsondb/Table.js';

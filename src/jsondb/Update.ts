@@ -107,7 +107,7 @@ export class Update
    }
 
 
-   public setSavePoint(flag:boolean) : Update
+   public useSavePoint(flag:boolean) : Update
    {
       this.savepoint$ = flag;
       return(this);

@@ -72,7 +72,7 @@ export class AnySQL
    }
 
 
-   public setSavePoint(flag:boolean) : AnySQL
+   public useSavePoint(flag:boolean) : AnySQL
    {
       this.savepoint$ = flag;
       return(this);
