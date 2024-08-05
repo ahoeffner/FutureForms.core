@@ -5,6 +5,7 @@ export { Update } from './src/jsondb/Update.js';
 export { Delete } from './src/jsondb/Delete.js';
 export { AnySQL } from './src/jsondb/AnySQL.js';
 export { Cursor } from './src/jsondb/Cursor.js';
+export { Custom } from './src/jsondb/Custom.js';
 export { Session } from './src/jsondb/Session.js';
 export { Function } from './src/jsondb/Function.js';
 export { Procedure } from './src/jsondb/Procedure.js';
