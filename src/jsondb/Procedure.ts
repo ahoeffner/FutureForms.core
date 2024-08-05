@@ -115,6 +115,9 @@ export class Procedure
             parameter.sqltype = parm.sqltype;
             parameter.precision = parm.precision;
 
+            if (parameter.isDate() && parm.value)
+               parm.value = new Date(""+parm.value);
+
             this.values$.set(parm.name.toLowerCase(),parm.value);
             this.parameters$.set(parm.name.toLowerCase(),parameter);
          })
