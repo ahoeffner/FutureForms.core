@@ -35,7 +35,10 @@ export class Procedure
    protected retval$:string = null;
    private savepoint$:boolean = null;
 
-   private values$:Map<string,ColumnDefinition> =
+   private values$:Map<string,any> =
+      new Map<string,any>();
+
+   private parameters$:Map<string,ColumnDefinition> =
       new Map<string,ColumnDefinition>();
 
 
@@ -79,7 +82,8 @@ export class Procedure
          {
             "invoke": "execute",
             "source": this.source$,
-            "session": this.session$.guid
+            "session": this.session$.guid,
+            "execute()" : {}
          }
       }
 
@@ -88,7 +92,7 @@ export class Procedure
          if (!Array.isArray(parameters))
             parameters = [parameters];
 
-         request.Call.bindvalues = parameters;
+         request.Call["execute()"].bindvalues = parameters;
       }
 
       if (this.savepoint$ != null)
@@ -111,7 +115,8 @@ export class Procedure
             parameter.sqltype = parm.sqltype;
             parameter.precision = parm.precision;
 
-            this.values$.set(parm.name.toLowerCase(),parameter);
+            this.values$.set(parm.name.toLowerCase(),parm.value);
+            this.parameters$.set(parm.name.toLowerCase(),parameter);
          })
 
          this.retval$ = response.returns;
