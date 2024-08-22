@@ -141,11 +141,22 @@ export class Cursor
 
    public async prefetch(rows?:number) : Promise<number>
    {
-      if (!this.more$)
-         return(0);
-
       if (rows == null)
          rows = this.arrayfetch$;
+
+      let ready:number = this.data$.length - this.pos$ - 1;
+
+      if (ready > 0)
+      {
+         if (rows == null && ready > 0)
+            return(ready);
+
+         if (rows != null && ready >= rows)
+            return(rows);
+      }
+
+      if (!this.more$)
+         return(ready);
 
       let request:any =
       {
@@ -173,7 +184,7 @@ export class Cursor
          this.more$ = response.more;
          this.rows$ += response.rows.length;
          this.data$.push(...response.rows);
-         return(response.rows.length);
+         return(response.rows.length + ready);
       }
 
       return(0);
