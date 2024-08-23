@@ -19,24 +19,8 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-import { Session } from "./Session.js";
-import { Messages } from "../messages/Messages.js";
-
-
-export class Custom
-{
-   private session$:Session;
-
-
-   public constructor(session:Session)
-   {
-      this.session$ = session;
-      if (!session) throw Messages.get("SESSION_IS_NULL","AnySQL");
-   }
-
-
-   public async execute(payload:any) : Promise<any>
-   {
-      return(this.session$.invoke(payload));
-   }
-}
+export const MessagesEN:Map<string,string> = new Map<string,string>
+([
+    ["SOURCE_IS_NULL","Cannot create %1 because source is null"],
+    ["SESSION_IS_NULL","Cannot create %1 because session is null"],
+])

@@ -20,9 +20,9 @@
 */
 
 import { Cursor } from "./Cursor.js";
-import { Record } from "./Record.js";
 import { Session } from "./Session.js";
 import { ColumnDefinition } from "./Table.js";
+import { Messages } from "../messages/Messages.js";
 import { NameValuePair } from "./filters/Filters.js";
 
 
@@ -51,6 +51,9 @@ export class AnySQL
 
          this.bindvalues$ = bindvalues;
       }
+
+      if (!source) throw Messages.get("SOURCE_IS_NULL","AnySQL");
+      if (!session) throw Messages.get("SESSION_IS_NULL","AnySQL");
    }
 
 
@@ -79,7 +82,7 @@ export class AnySQL
    }
 
 
-   public async insert(record:Record) : Promise<boolean>
+   public async insert() : Promise<boolean>
    {
       let request:any =
       {
@@ -87,7 +90,7 @@ export class AnySQL
          {
             "invoke": "insert",
             "source": this.source$,
-            "session": this.session$.guid
+            "session": this.session$.sessionID
          }
       }
 
@@ -109,7 +112,7 @@ export class AnySQL
    }
 
 
-   public async update(record:Record) : Promise<boolean>
+   public async update() : Promise<boolean>
    {
       let request:any =
       {
@@ -117,7 +120,7 @@ export class AnySQL
          {
             "invoke": "update",
             "source": this.source$,
-            "session": this.session$.guid
+            "session": this.session$.sessionID
          }
       }
 
@@ -139,7 +142,7 @@ export class AnySQL
    }
 
 
-   public async delete(record:Record) : Promise<boolean>
+   public async delete() : Promise<boolean>
    {
       let request:any =
       {
@@ -147,7 +150,7 @@ export class AnySQL
          {
             "invoke": "delete",
             "source": this.source$,
-            "session": this.session$.guid
+            "session": this.session$.sessionID
          }
       }
 
@@ -183,7 +186,7 @@ export class AnySQL
          {
             "invoke": "select",
             "source": this.source$,
-            "session": this.session$.guid,
+            "session": this.session$.sessionID,
 
             "select()":
             {

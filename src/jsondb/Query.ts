@@ -157,7 +157,7 @@ export class Query
          {
             "invoke": "select",
             "source": this.source$,
-            "session": this.session$.guid,
+            "session": this.session$.sessionID,
 
             "select()":
             {

@@ -69,7 +69,7 @@ export class Session
    }
 
 
-   public get guid() : string
+   public get sessionID() : string
    {
       return(this.guid$);
    }

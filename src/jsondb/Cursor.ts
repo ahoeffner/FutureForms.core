@@ -107,7 +107,7 @@ export class Cursor
          "Cursor":
          {
             "invoke": "fetch",
-            "session": this.session.guid,
+            "session": this.session.sessionID,
             "cursor": this.id$
          }
       }
@@ -163,7 +163,7 @@ export class Cursor
          "Cursor":
          {
             "invoke": "fetch",
-            "session": this.session.guid,
+            "session": this.session.sessionID,
             "cursor": this.id$
          }
       }
@@ -206,7 +206,7 @@ export class Cursor
          "Cursor":
          {
             "invoke": "close",
-            "session": this.session.guid,
+            "session": this.session.sessionID,
             "cursor": this.id$
          }
       }

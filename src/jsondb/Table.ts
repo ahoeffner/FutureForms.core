@@ -26,6 +26,7 @@ import { Delete } from "./Delete.js";
 import { Record } from "./Record.js";
 import { Cursor } from "./Cursor.js";
 import { Session } from "./Session.js";
+import { Messages } from "../messages/Messages.js";
 import { NameValuePair } from "./filters/Filters.js";
 import { FilterGroup } from "./filters/FilterGroup.js";
 
@@ -52,6 +53,9 @@ export class Table
       this.source$ = source;
       this.session$ = session;
       this.bindvalues$ = bindvalues;
+
+      if (!source) throw Messages.get("SOURCE_IS_NULL","Table");
+      if (!session) throw Messages.get("SESSION_IS_NULL","Table");
    }
 
 
@@ -198,7 +202,7 @@ export class Table
          {
             "invoke": "describe",
             "source": this.source$,
-            "session": this.session$.guid
+            "session": this.session$.sessionID
          }
       }
 

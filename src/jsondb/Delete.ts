@@ -136,7 +136,7 @@ export class Delete
          {
             "invoke": "delete",
             "source": this.source$,
-            "session": this.session$.guid,
+            "session": this.session$.sessionID,
 
             "delete()":
             {

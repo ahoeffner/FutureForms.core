@@ -137,7 +137,7 @@ export class Update
          {
             "invoke": "update",
             "source": this.source$,
-            "session": this.session$.guid,
+            "session": this.session$.sessionID,
 
             "update()":
             {

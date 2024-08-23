@@ -21,6 +21,7 @@
 
 import { Session } from "./Session.js";
 import { ColumnDefinition } from "./Table.js";
+import { Messages } from "../messages/Messages.js";
 import { NameValuePair } from "./filters/Filters.js";
 
 
@@ -46,6 +47,9 @@ export class Procedure
    {
       this.source$ = source;
       this.session$ = session;
+
+      if (!source) throw Messages.get("SOURCE_IS_NULL","Procedure/Function");
+      if (!session) throw Messages.get("SESSION_IS_NULL","Procedure/Function");
    }
 
 
@@ -82,7 +86,7 @@ export class Procedure
          {
             "invoke": "execute",
             "source": this.source$,
-            "session": this.session$.guid,
+            "session": this.session$.sessionID,
             "execute()" : {}
          }
       }

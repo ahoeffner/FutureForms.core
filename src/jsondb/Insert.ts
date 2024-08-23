@@ -101,7 +101,7 @@ export class Insert
          {
             "invoke": "insert",
             "source": this.source$,
-            "session": this.session$.guid,
+            "session": this.session$.sessionID,
 
             "insert()":
             {

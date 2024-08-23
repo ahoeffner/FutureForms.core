@@ -19,13 +19,45 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+import { MessagesEN } from './MessagesEN.js';
+
+
 export class Messages
 {
+   private static default:string = "EN";
 
-}
+
+   private static bundles:Map<string,Map<string,string>> =
+      new Map<string,Map<string,string>>
+      (
+         [["EN",MessagesEN]]
+      );
 
 
-export class MessagesEN
-{
+   public static get(msg:string, ...args:any) : string
+   {
+      let bundle:Map<string,string> = Messages.getBundle();
+      let message:string = bundle.get(msg);
 
+      if (!message) throw "Unknown message "+msg;
+
+      for (let i = 0; args && i < args.length; i++)
+         message = message.replaceAll("%"+(i+1),args[i]);
+
+      return(message);
+   }
+
+
+   private static getBundle() : Map<string,string>
+   {
+      let lang:string = navigator.language;
+
+      let pos:number = lang.indexOf("-");
+      if (pos > 0) lang = lang.substring(0,pos);
+
+      let bundle:Map<string,string> = Messages.bundles.get(lang.toUpperCase());
+      if (bundle == null) bundle = Messages.bundles.get(Messages.default);
+
+      return(bundle);
+   }
 }
