@@ -36,9 +36,20 @@ export enum WeekDays
 
 export class Dates
 {
+   /**
+    * Helper filters for dealing with date columns
+    * When selecting data for a given date, it is necessary to
+    * query from (including) the beginning of that day until the beginning of next dsy (excluding)
+    */
+
    private static DAY:number = 1000*60*60*24;
 
-
+   /**
+    *
+    * @param column  The table column
+    * @param date    The given date
+    * @returns       A filter representing this condition
+    */
    public AtThisDay(column:string, date?:Date) : Filter
    {
       if (!date) date = new Date();
@@ -49,6 +60,13 @@ export class Dates
       return(filter);
    }
 
+   /**
+    *
+    * @param column     The table column
+    * @param date       A date belonging to the given week
+    * @param weekstart  First day of week. Default is monday
+    * @returns          A filter representing this condition
+    */
    public AtThisWeek(column:string, date:Date, weekstart?:WeekDays) : Filter
    {
       if (!weekstart)
@@ -69,6 +87,11 @@ export class Dates
       return(filter);
    }
 
+   /**
+    * @param column     The table column
+    * @param date       A date belonging to the given month
+    * @returns          A filter representing this condition
+    */
    public AtThisMonth(column:string, date:Date) : Filter
    {
       let d1:Date = new Date(date.getFullYear(),date.getMonth(),1);
@@ -81,6 +104,11 @@ export class Dates
       return(filter);
    }
 
+   /**
+    * @param column     The table column
+    * @param date       A date belonging to the given year
+    * @returns          A filter representing this condition
+    */
    public AtThisYear(column:string, date:Date) : Filter
    {
       let d1:Date = new Date(date.getFullYear(),0);
@@ -97,7 +125,9 @@ export class Dates
 
 export class Filters
 {
-
+   /**
+    * Helper class to publish defined filters
+    */
    public static Dates:Dates = new Dates();
 
    public static IsNull(column:string) : Filter
@@ -265,6 +295,9 @@ export class Filters
 
 export class Filter
 {
+   /**
+    * JSON Object that represents a condition in a where-clase
+    */
    private type:string;
    private custom:string;
 
@@ -276,6 +309,9 @@ export class Filter
    private custargs:NameValuePair[] = null;
 
 
+   /**
+    * @returns Wheater the filter uses bindvalues
+    */
    public args() : boolean
    {
       if (this.value != null) return(true);
@@ -285,14 +321,19 @@ export class Filter
    }
 
 
-   public bind(values:any|any[]) : void
+   /**
+    * Set the bindvalue(s)
+    * @param values
+    * @returns Itself
+    */
+   public bind(values:any|any[]) : Filter
    {
       if (values == null)
       {
          this.custargs = null;
          this.value = null;
          this.values = null;
-         return;
+         return(this);
       }
 
       if (this.type == "custom")
@@ -307,9 +348,14 @@ export class Filter
          if (!Array.isArray(values)) this.value = values;
            else this.values = values;
       }
+
+      return(this);
    }
 
 
+   /**
+    * @returns JSON Object representing the condition
+    */
    public parse() : any
    {
       let parsed:any = {filter: this.type};

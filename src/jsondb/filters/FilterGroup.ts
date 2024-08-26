@@ -22,12 +22,22 @@
 import { Filter } from "./Filters.js";
 
 
+/**
+ * The FilterGroup represents a where-clause in sql
+ * It consists of conditions (Filters) and other FilterGroups
+ * When adding a FilterGroup, all conditions inside that group will be surrounded in brackets
+ */
 export class FilterGroup
 {
    private entries$:Entry[] = [];
 
 
-   public static group(filters:Filter|Filter[]|FilterGroup|FilterGroup[]) : FilterGroup
+   /**
+    * Helper method grouping conditions
+    * @param filters The conditions
+    * @returns FilterGroup or null
+    */
+   public static group(filters:Filter|Filter[]|FilterGroup|FilterGroup[]) : FilterGroup|null
    {
       if (filters == null)
          return(null);
@@ -39,8 +49,17 @@ export class FilterGroup
    }
 
 
-   public constructor(filters?:Filter|Filter[]|FilterGroup[])
+   /**
+    * @param filters The conditions to add initially
+    */
+   public constructor(filters?:Filter|Filter[]|FilterGroup|FilterGroup[])
    {
+      if (filters instanceof FilterGroup)
+      {
+         this.add(filters);
+         return;
+      }
+
       if (filters)
       {
          if (!Array.isArray(filters)) filters = [filters];
@@ -49,6 +68,10 @@ export class FilterGroup
    }
 
 
+   /**
+    * @param filter Add condition (and)
+    * @returns Itself
+    */
    public add(filter:Filter|FilterGroup) : FilterGroup
    {
       this.entries$.push(new Entry("and",filter));
@@ -56,6 +79,11 @@ export class FilterGroup
    }
 
 
+   /**
+    *
+    * @param filter Add condition (or)
+    * @returns Itself
+    */
    public or(filter:Filter|FilterGroup) : FilterGroup
    {
       this.entries$.push(new Entry("or",filter));
@@ -63,6 +91,9 @@ export class FilterGroup
    }
 
 
+   /**
+    * @returns A json-object representing the where-clause
+    */
    public parse() : any
    {
       let parsed:any[] = [];
@@ -79,23 +110,34 @@ export class FilterGroup
    }
 
 
-   public bind(...values:any) : void
+   /**
+    *
+    * @param values Values to use with conditions
+    * @returns Itself
+    */
+   public bind(...values:any) : FilterGroup
    {
       let arg:number = 0;
       if (values) values = values[0];
       let filters:Filter[] = this.filters();
 
       if (values.length == 0)
-         return;
+         return(this);
 
       for (let i = 0; i < filters.length; i++)
       {
          if (filters[i].args())
             filters[i].bind(values[arg++])
       }
+
+      return(this);
    }
 
 
+   /**
+    *
+    * @returns All conditions applied
+    */
    public filters() : Filter[]
    {
       let filters:Filter[] = [];
