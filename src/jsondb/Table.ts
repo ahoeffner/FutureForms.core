@@ -27,8 +27,8 @@ import { Record } from "./Record.js";
 import { Cursor } from "./Cursor.js";
 import { Session } from "./Session.js";
 import { Messages } from "../messages/Messages.js";
-import { NameValuePair } from "./filters/Filters.js";
 import { FilterGroup } from "./filters/FilterGroup.js";
+import { Filter, NameValuePair } from "./filters/Filters.js";
 
 
 export class Table
@@ -114,21 +114,21 @@ export class Table
    }
 
 
-   public createUpdate(filter?:FilterGroup) : Update
+   public createUpdate(filters?:Filter|Filter[]|FilterGroup|FilterGroup[]) : Update
    {
-      return(new Update(this,filter));
+      return(new Update(this,filters));
    }
 
 
-   public createDelete(filter?:FilterGroup) : Delete
+   public createDelete(filters?:Filter|Filter[]|FilterGroup|FilterGroup[]) : Delete
    {
-      return(new Delete(this,filter));
+      return(new Delete(this,filters));
    }
 
 
-   public createQuery(columns?:string|string[], filter?:FilterGroup) : Query
+   public createQuery(columns?:string|string[], filters?:Filter|Filter[]|FilterGroup|FilterGroup[]) : Query
    {
-      return(new Query(this,columns,filter));
+      return(new Query(this,columns,filters));
    }
 
 

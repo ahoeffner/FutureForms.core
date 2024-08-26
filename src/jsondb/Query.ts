@@ -23,8 +23,8 @@ import { Table } from "./Table.js";
 import { Cursor } from "./Cursor.js";
 import { Session } from "./Session.js";
 import { Assertion } from "./Assertion.js";
-import { NameValuePair } from "./filters/Filters.js";
 import { FilterGroup } from "./filters/FilterGroup.js";
+import { Filter, NameValuePair } from "./filters/Filters.js";
 
 
 export class Query
@@ -47,10 +47,10 @@ export class Query
    private assertions$:NameValuePair[] = [];
 
 
-   public constructor(table:Table, columns?:string|string[], filter?:FilterGroup)
+   public constructor(table:Table, columns?:string|string[], filters?:Filter|Filter[]|FilterGroup|FilterGroup[])
    {
       this.table$ = table;
-      this.filter$ = filter;
+      this.filter$ = FilterGroup.group(filters);
 
       this.order$ = this.table$.order;
       this.source$ = this.table$.source;
@@ -62,8 +62,8 @@ export class Query
       if (!Array.isArray(columns))
          columns = [columns];
 
-      this.filter$ = filter;
       this.columns$ = columns;
+      this.filter$ = FilterGroup.group(filters);
    }
 
 

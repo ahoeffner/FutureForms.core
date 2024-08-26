@@ -27,6 +27,18 @@ export class FilterGroup
    private entries$:Entry[] = [];
 
 
+   public static group(filters:Filter|Filter[]|FilterGroup|FilterGroup[]) : FilterGroup
+   {
+      if (filters == null)
+         return(null);
+
+      if (filters instanceof FilterGroup)
+         return(filters);
+
+      return(new FilterGroup(filters));
+   }
+
+
    public constructor(filters?:Filter|Filter[]|FilterGroup[])
    {
       if (filters)

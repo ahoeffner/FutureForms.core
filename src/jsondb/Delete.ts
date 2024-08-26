@@ -23,8 +23,8 @@ import { Table } from "./Table.js";
 import { Cursor } from "./Cursor.js";
 import { Session } from "./Session.js";
 import { Assertion } from "./Assertion.js";
-import { NameValuePair } from "./filters/Filters.js";
 import { FilterGroup } from "./filters/FilterGroup.js";
+import { Filter, NameValuePair } from "./filters/Filters.js";
 
 export class Delete
 {
@@ -44,10 +44,10 @@ export class Delete
    private assertions$:NameValuePair[] = [];
 
 
-   public constructor(table:Table, filter?:FilterGroup)
+   public constructor(table:Table, filters?:Filter|Filter[]|FilterGroup|FilterGroup[])
    {
       this.table$ = table;
-      this.filter$ = filter;
+      this.filter$ = FilterGroup.group(filters);
 
       this.source$ = this.table$.source;
       this.session$ = this.table$.session;
