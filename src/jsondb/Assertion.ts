@@ -41,7 +41,7 @@ export class Assertion
 
       if (response.violations)
       {
-         response.violations.forEach((assrt) =>
+         response.violations.forEach((assrt:Violation) =>
          {this.violations$.push(new Violation(assrt.column,assrt.expected,assrt.actual))})
       }
    }
@@ -65,7 +65,13 @@ export class Assertion
    }
 
 
-   //public getViolations() :
+   /**
+    * @returns The failed assertions
+    */
+   public getViolations() : Violation[]
+   {
+      return(this.violations$);
+   }
 }
 
 
