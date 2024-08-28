@@ -19,6 +19,11 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+
+/**
+ * Assertions makes sure that columns has not been changed
+ * between when they were fetched and any subsequent updates (lock, update, delete)
+ */
 export class Assertion
 {
    private message$:string = null;
@@ -26,6 +31,9 @@ export class Assertion
    private violations$:Violation[] = [];
 
 
+   /**
+    * @param response The response from JsonWebDB
+    */
    public parse(response:any) : void
    {
       this.message$ = response.record;
@@ -39,12 +47,18 @@ export class Assertion
    }
 
 
+   /**
+    * @returns Whether an error has occured
+    */
    public failed() : boolean
    {
       return(!this.success$);
    }
 
 
+   /**
+    * @returns The error-message from the backend
+    */
    public getErrorMessage() : string
    {
       return(this.message$);
@@ -55,6 +69,9 @@ export class Assertion
 }
 
 
+/**
+ * Violation specifies that a column has an actual value that differs from the expected value
+ */
 export class Violation
 {
    actual$:any;
@@ -69,18 +86,27 @@ export class Violation
    }
 
 
+   /**
+    * The column name
+    */
    public get column() : string
    {
       return(this.column$);
    }
 
 
+   /**
+    * The actual value of the column
+    */
    public get actual() : any
    {
       return(this.actual$);
    }
 
 
+   /**
+    * The expected value of the column
+    */
    public get expected() : any
    {
       return(this.expected$);

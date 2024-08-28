@@ -80,7 +80,6 @@ export class FilterGroup
 
 
    /**
-    *
     * @param filter Add condition (or)
     * @returns Itself
     */
@@ -111,7 +110,6 @@ export class FilterGroup
 
 
    /**
-    *
     * @param values Values to use with conditions
     * @returns Itself
     */
@@ -135,7 +133,6 @@ export class FilterGroup
 
 
    /**
-    *
     * @returns All conditions applied
     */
    public filters() : Filter[]

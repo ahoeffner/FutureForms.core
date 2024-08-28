@@ -31,6 +31,19 @@ import { FilterGroup } from "./filters/FilterGroup.js";
 import { Filter, NameValuePair } from "./filters/Filters.js";
 
 
+/**
+ * AnySQL is the client side object that wraps the JsonWebDB table object.
+ * A table object can be a table or view, and optionally use a custom select
+ * statement when querying
+ *
+ * Depending of the operation to be executed on the "table" use one of the execute methods:
+ *
+ *    When using insert(), update() and delete() the backend returns the status
+ *    select() : Using this method, the backend will return a cursor
+ *
+ * For more control use the createInsert, createUpdate, createDelete or createQuery to get
+ * an object specifically made for this operation
+ */
 export class Table
 {
    private errm$:string = null;
@@ -48,6 +61,11 @@ export class Table
       new Map<string,ColumnDefinition>();
 
 
+   /**
+    * @param session    The JsonWebDB session
+    * @param source     The source sql
+    * @param bindvalues Any bindvalues used in the sql
+    */
    public constructor(session:Session, source:string, bindvalues?:NameValuePair[])
    {
       this.source$ = source;
@@ -59,42 +77,65 @@ export class Table
    }
 
 
+   /**
+    * @returns Whether an error has occured
+    */
    public failed() : boolean
    {
       return(!this.success$);
    }
 
 
+   /**
+    * @returns The error-message from the backend
+    */
    public getErrorMessage() : string
    {
       return(this.errm$);
    }
 
 
+   /**
+    * The default order by clause
+    */
    public get order() : string
    {
       return(this.order$);
    }
 
 
+   /**
+    * The name of the source object
+    */
    public get source() : string
    {
       return(this.source$);
    }
 
 
+   /**
+    * The JsonWebDB session
+    */
    public get session() : Session
    {
       return(this.session$);
    }
 
 
+   /**
+    * Bindvalues
+    */
    public get bindvalues() : NameValuePair[]
    {
       return(this.bindvalues$);
    }
 
 
+   /**
+    *
+    * @param order Se the order by clause
+    * @returns
+    */
    public setOrder(order:string) : Table
    {
       this.order$ = order;
@@ -102,36 +143,55 @@ export class Table
    }
 
 
+   /**
+    * @returns A map of column name and definitions
+    */
    public getColumnDefinitions() : Map<string,ColumnDefinition>
    {
       return(this.coldef$);
    }
 
 
+   /**
+    * @returns A class specifically targeted insert operations
+    */
    public createInsert() : Insert
    {
       return(new Insert(this));
    }
 
 
+   /**
+    * @returns A class specifically targeted update operations
+    */
    public createUpdate(filters?:Filter|Filter[]|FilterGroup|FilterGroup[]) : Update
    {
       return(new Update(this,filters));
    }
 
 
+   /**
+    * @returns A class specifically targeted delete operations
+    */
    public createDelete(filters?:Filter|Filter[]|FilterGroup|FilterGroup[]) : Delete
    {
       return(new Delete(this,filters));
    }
 
 
+   /**
+    * @returns A class specifically targeted query operations
+    */
    public createQuery(columns?:string|string[], filters?:Filter|Filter[]|FilterGroup|FilterGroup[]) : Query
    {
       return(new Query(this,columns,filters));
    }
 
 
+   /**
+    * @param record The record to insert into the table
+    * @returns
+    */
    public async insert(record:Record) : Promise<boolean>
    {
       let ins:Insert = new Insert(this);
@@ -144,30 +204,45 @@ export class Table
    }
 
 
+   /**
+    * @param record The record to holding changed values
+    * @param filter The filter specifying the rows targeted
+    * @returns The status
+    */
    public async update(record:Record, filter?:FilterGroup) : Promise<boolean>
    {
       let upd:Update = new Update(this,filter);
 
-      await upd.execute(record);
-      this.success$ = !upd.failed();
+      this.success$ = await upd.execute(record);
       this.errm$ = upd.getErrorMessage();
 
       return(this.success$);
    }
 
 
+   /**
+    * @param filter The filter specifying the rows targeted
+    * @returns
+    */
    public async delete(filter?:FilterGroup) : Promise<boolean>
    {
       let del:Delete = new Delete(this,filter);
 
-      await del.execute();
-      this.success$ = !del.failed();
+      this.success$ = await del.execute();
       this.errm$ = del.getErrorMessage();
 
       return(this.success$);
    }
 
 
+   /**
+    *
+    * @param columns    The columns to fetch
+    * @param filter     The where-clause
+    * @param close      Fetch and close the cursor in same roundtrip
+    * @param arrayfetch The number of rows to fetch in each roundtrip
+    * @returns
+    */
    public async select(columns?:string|string[], filter?:FilterGroup, close?:boolean, arrayfetch?:number) : Promise<Cursor>
    {
       if (close == null)
@@ -188,6 +263,9 @@ export class Table
    }
 
 
+   /**
+    * @returns The table definition
+    */
    public async describe() : Promise<TableDefinition>
    {
       let definition:TableDefinition =
@@ -250,6 +328,12 @@ export class Table
 }
 
 
+/**
+ * name        The column name
+ * type        The type as string varchar...
+ * sqltype     The actual and database specific type
+ * precision   The column precision
+ */
 export class ColumnDefinition
 {
    public name:string;
@@ -257,6 +341,9 @@ export class ColumnDefinition
    public sqltype:number;
    public precision:number[]
 
+   /**
+    * @returns Weather the column is s date type
+    */
    public isDate() : boolean
    {
       if (this.type.toLowerCase().indexOf("date") >= 0)
@@ -270,6 +357,11 @@ export class ColumnDefinition
 }
 
 
+/**
+ * columns     An array of column definitions
+ * order       The default order by clause
+ * primarykey  The primary key, if any
+ */
 export class TableDefinition
 {
    public order:string;

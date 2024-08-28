@@ -310,7 +310,7 @@ export class Filter
 
 
    /**
-    * @returns Wheater the filter uses bindvalues
+    * @returns Whether the filter uses bindvalues
     */
    public args() : boolean
    {
@@ -402,6 +402,9 @@ export class Filter
 }
 
 
+/**
+ * Classic name/value pair
+ */
 export class NameValuePair
 {
    public constructor(public name:string, public value:any) {};

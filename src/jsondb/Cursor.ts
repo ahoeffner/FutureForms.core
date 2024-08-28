@@ -24,6 +24,10 @@ import { ColumnDefinition } from "./Table.js";
 import { RecordDefinition, Record } from "./Record.js";
 
 
+/**
+ * A cursor is used for scrolling through records
+ * returned by the database.
+ */
 export class Cursor
 {
    private errm$:string = null;
@@ -40,6 +44,11 @@ export class Cursor
    private coldef$:Map<string,ColumnDefinition> = null;
 
 
+   /**
+    * @param session    The JsonWebDB session
+    * @param coldef     The column definitions
+    * @param response   The response from JsonWebDB
+    */
    constructor(private session:Session, coldef:Map<string,ColumnDefinition>, response:any)
    {
       this.coldef$ = coldef;
@@ -54,24 +63,38 @@ export class Cursor
    }
 
 
+   /**
+    * @returns Whether an error has occured
+    */
    public failed() : boolean
    {
       return(!this.success$);
    }
 
 
+   /**
+    * @returns The error-message from the backend
+    */
    public getErrorMessage() : string
    {
       return(this.errm$);
    }
 
 
+
+   /**
+    * @returns The total number of rows fetched
+    */
    public fetched() : number
    {
       return(this.rows$);
    }
 
 
+   /**
+    * @param rows The number of rows to fetch in each roundtrip to JsonWebDB
+    * @returns
+    */
    public setArrayFetch(rows:number) : Cursor
    {
       this.arrayfetch$ = rows;
@@ -79,6 +102,10 @@ export class Cursor
    }
 
 
+   /**
+    * Checks if any rows available, and moves the pointer to the next row
+    * @returns true if any rows available
+    */
    public async next() : Promise<boolean>
    {
       this.pos$++;
@@ -139,6 +166,12 @@ export class Cursor
    }
 
 
+   /**
+    * Fetches 'arrayfetch' rows into memory
+    * If memory is not empty, it only tries the fetch the missing rows
+    * @param rows The number of rows that prefetch should try to get ready for fetching
+    * @returns The number of rows ready to be fetched
+    */
    public async prefetch(rows?:number) : Promise<number>
    {
       if (rows == null)
@@ -183,7 +216,10 @@ export class Cursor
       {
          this.more$ = response.more;
          this.rows$ += response.rows.length;
-         this.data$.push(...response.rows);
+
+         if (ready <= 0) this.data$ = response.rows;
+         else this.data$.push(...response.rows);
+
          return(response.rows.length + ready);
       }
 
@@ -191,6 +227,11 @@ export class Cursor
    }
 
 
+   /**
+    * Closes the database cursor. This is important since the database
+    * will run out of resources if cursors are never closed
+    * @returns Whether the close was performed successfully
+    */
    public async close() : Promise<boolean>
    {
       if (!this.more$)
@@ -213,6 +254,7 @@ export class Cursor
 
       let response:any = await this.session.invoke(request);
 
+      this.data$ = [];
       this.errm$ = response.message;
       this.success$ = response.success;
 

@@ -26,6 +26,16 @@ import { Messages } from "../messages/Messages.js";
 import { NameValuePair } from "./filters/Filters.js";
 
 
+/**
+ * AnySQL is the client side object that wraps the JsonWebDB object SQL.
+ * This can be used to execute any statement against the database
+ *
+ * Depending of the type of statement use one of the execute methods:
+ *
+ *    When using the execute() method, the backend only returns success or failure
+ *    When using insert(), update() and delete() the backend returns the number of affected rows
+ *    select() : Using this method, the backend will return a cursor
+ */
 export class AnySQL
 {
    private errm$:string = null;
@@ -39,6 +49,11 @@ export class AnySQL
    private bindvalues$:NameValuePair[] = null;
 
 
+   /**
+    * @param session    The JsonWebDB session
+    * @param source     The source sql
+    * @param bindvalues Any bindvalues used in the sql
+    */
    public constructor(session:Session, source:string, bindvalues?:NameValuePair|NameValuePair[])
    {
       this.source$ = source;
@@ -57,24 +72,55 @@ export class AnySQL
    }
 
 
+   /**
+    * @returns Whether an error has occured
+    */
    public failed() : boolean
    {
       return(!this.success$);
    }
 
 
+   /**
+    * @returns The error-message from the backend
+    */
    public getErrorMessage() : string
    {
       return(this.errm$);
    }
 
 
+   /**
+    * The name of the source object
+    */
+   public get source() : string
+   {
+      return(this.source$);
+   }
+
+
+   /**
+    * The JsonWebDB session
+    */
+   public get session() : Session
+   {
+      return(this.session$);
+   }
+
+
+   /**
+    * @returns The number of rows affected
+    */
    public affected() : number
    {
       return(this.affected$);
    }
 
 
+   /**
+    * @param flag Whether to wrap the statement with a savepoint
+    * @returns
+    */
    public useSavePoint(flag:boolean) : AnySQL
    {
       this.savepoint$ = flag;
@@ -82,6 +128,39 @@ export class AnySQL
    }
 
 
+   /**
+    * @returns Whether the statement was executed successfully
+    */
+   public async execute() : Promise<boolean>
+   {
+      let request:any =
+      {
+         "Sql":
+         {
+            "invoke": "execute",
+            "source": this.source$,
+            "session": this.session$.sessionID
+         }
+      }
+
+      if (this.bindvalues$)
+         request.Sql.bindvalues = this.bindvalues$;
+
+      if (this.savepoint$ != null)
+         request.Sql.savepoint = this.savepoint$;
+
+      let response:any = await this.session$.invoke(request);
+
+      this.errm$ = response.message;
+      this.success$ = response.success;
+
+      return(this.success$);
+   }
+
+
+   /**
+    * @returns Whether the statement was executed successfully
+    */
    public async insert() : Promise<boolean>
    {
       let request:any =
@@ -112,6 +191,9 @@ export class AnySQL
    }
 
 
+   /**
+    * @returns Whether the statement was executed successfully
+    */
    public async update() : Promise<boolean>
    {
       let request:any =
@@ -142,6 +224,9 @@ export class AnySQL
    }
 
 
+   /**
+    * @returns Whether the statement was executed successfully
+    */
    public async delete() : Promise<boolean>
    {
       let request:any =
@@ -172,6 +257,9 @@ export class AnySQL
    }
 
 
+   /**
+    * @returns A cursor from which records can be fetched
+    */
    public async select(close?:boolean, arrayfetch?:number) : Promise<Cursor>
    {
       if (close == null)

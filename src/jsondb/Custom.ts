@@ -23,18 +23,28 @@ import { Session } from "./Session.js";
 import { Messages } from "../messages/Messages.js";
 
 
+/**
+ * Send custom JSON to JsonWebDB
+ * Any JSON can be sent and intercepted by the backend
+ */
 export class Custom
 {
    private session$:Session;
 
 
+   /**
+    * @param session The JsonWebDB session
+    */
    public constructor(session:Session)
    {
       this.session$ = session;
       if (!session) throw Messages.get("SESSION_IS_NULL","AnySQL");
    }
 
-
+   
+   /**
+    * @returns Whether the statement was executed successfully
+    */
    public async execute(payload:any) : Promise<any>
    {
       return(this.session$.invoke(payload));

@@ -25,6 +25,10 @@ import { Messages } from "../messages/Messages.js";
 import { NameValuePair } from "./filters/Filters.js";
 
 
+/**
+ * Procedure is the client side object that wraps the JsonWebDB Procedure object.
+ * This class is inherited by Function, only
+ */
 export class Procedure
 {
    private errm$:string = null;
@@ -43,6 +47,10 @@ export class Procedure
       new Map<string,ColumnDefinition>();
 
 
+   /**
+    * @param session    The JsonWebDB session
+    * @param source     The source sql
+    */
    public constructor(session:Session, source:string)
    {
       this.source$ = source;
@@ -53,18 +61,46 @@ export class Procedure
    }
 
 
+   /**
+    * The name of the source object
+    */
+   public get source() : string
+   {
+      return(this.source$);
+   }
+
+
+   /**
+    * The JsonWebDB session
+    */
+   public get session() : Session
+   {
+      return(this.session$);
+   }
+
+
+   /**
+    * @returns Whether an error has occured
+    */
    public failed() : boolean
    {
       return(!this.success$);
    }
 
 
+   /**
+    * @returns The error-message from the backend
+    */
    public getErrorMessage() : string
    {
       return(this.errm$);
    }
 
 
+   /**
+    * @param flag Whether to wrap the statement with a savepoint
+    * @returns
+    */
    public useSavePoint(flag:boolean) : Procedure
    {
       this.savepoint$ = flag;
@@ -72,12 +108,20 @@ export class Procedure
    }
 
 
+   /**
+    * @param name The name of the parameter
+    * @returns the value returned by the procedure/function
+    */
    public getValue(name:string) : any
    {
       return(this.values$.get(name.toLowerCase()));
    }
 
 
+   /**
+    * @param parameters name/value pair of the parameters to the procedure/function
+    * @returns
+    */
    public async execute(parameters?:NameValuePair|NameValuePair[]) : Promise<boolean>
    {
       let request:any =
