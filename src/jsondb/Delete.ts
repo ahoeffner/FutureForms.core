@@ -26,6 +26,11 @@ import { Assertion } from "./Assertion.js";
 import { FilterGroup } from "./filters/FilterGroup.js";
 import { Filter, NameValuePair } from "./filters/Filters.js";
 
+
+/**
+ * The Delete class uses the Table object in JsonWebDB.
+ * It exposes all the options possible when using the delete method
+ */
 export class Delete
 {
    private errm$:string = null;
@@ -44,6 +49,11 @@ export class Delete
    private assertions$:NameValuePair[] = [];
 
 
+   /**
+    *
+    * @param table   The Table object
+    * @param filters The where-clause
+    */
    public constructor(table:Table, filters?:Filter|Filter[]|FilterGroup|FilterGroup[])
    {
       this.table$ = table;
@@ -54,36 +64,59 @@ export class Delete
    }
 
 
+   /**
+    * @returns Whether an error has occured
+    */
    public failed() : boolean
    {
       return(!this.success$);
    }
 
 
+   /**
+    * @returns The error-message from the backend
+    */
    public getErrorMessage() : string
    {
       return(this.errm$);
    }
 
 
+   /**
+    * @returns The number of rows affected
+    */
    public affected() : number
    {
       return(this.affected$);
    }
 
 
+   /**
+    * @returns The values returned by the operation
+    */
    public getReturnValues() : Cursor
    {
       return(this.cursor$);
    }
 
 
+   /**
+    * Assertions is used to ensure that columns hasn't
+    * been updated since the values was fetched from the database
+    * @returns The assertion object holding possible violations
+    */
    public getAssertionStatus() : Assertion
    {
       return(this.assert$);
    }
 
 
+   /**
+    * Assertions is used to ensure that columns hasn't
+    * been updated since the values was fetched from the database
+    * @param assertions Name/value pair ensuring columns hasn't been changed
+    * @returns
+    */
    public setAssertions(assertions?:NameValuePair|NameValuePair[]) : Delete
    {
       if (assertions == null)
@@ -97,6 +130,11 @@ export class Delete
    }
 
 
+   /**
+    * Bind all filters with new values
+    * @param values The new values
+    * @returns
+    */
    public bind(...values:any) : Delete
    {
       if (this.filter$)
@@ -106,6 +144,12 @@ export class Delete
    }
 
 
+   /**
+    * Savepoint ensures that only the last statement is
+    * rolled back in case of an error
+    * @param flag Whether to use savepoints
+    * @returns
+    */
    public useSavePoint(flag:boolean) : Delete
    {
       this.savepoint$ = flag;
@@ -113,6 +157,12 @@ export class Delete
    }
 
 
+   /**
+    * Some databases supports returning columns in insert/update/delete
+    * This is very helpful if triggers assign or modify columns
+    * @param columns The columns to be returned
+    * @returns Itself
+    */
    public setReturnColumns(columns:string|string[]) : Delete
    {
       if (!Array.isArray(columns))
@@ -123,6 +173,10 @@ export class Delete
    }
 
 
+   /**
+    * @param values New values for filters
+    * @returns Whether the statement was executed successfully
+    */
    public async execute(...values:any)  : Promise<boolean>
    {
       this.affected$ = 0;

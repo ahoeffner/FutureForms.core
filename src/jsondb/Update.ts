@@ -27,6 +27,11 @@ import { Assertion } from "./Assertion.js";
 import { FilterGroup } from "./filters/FilterGroup.js";
 import { Filter, NameValuePair } from "./filters/Filters.js";
 
+
+/**
+ * The Update class uses the Table object in JsonWebDB.
+ * It exposes all the options possible when using the update method
+ */
 export class Update
 {
    private errm$:string = null;

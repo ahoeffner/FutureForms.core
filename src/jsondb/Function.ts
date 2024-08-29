@@ -22,14 +22,26 @@
 import { Procedure } from "./Procedure.js";
 
 
+/**
+ * Function is the client side object that wraps the JsonWebDB Function object.
+ * Used for calling a stored function
+ * Basically the same as Procedure, though a function returns a value
+ */
 export class Function extends Procedure
 {
+   /**
+    * @returns The value returned by the function
+    */
    public getReturnValue() : any
    {
       return(super.getValue(this.retval$));
    }
 
 
+   /**
+    * @param flag Whether to wrap the statement with a savepoint
+    * @returns Itself
+    */
    public useSavePoint(flag:boolean) : Function
    {
       super.useSavePoint(flag);

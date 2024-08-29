@@ -134,7 +134,7 @@ export class Table
    /**
     *
     * @param order Se the order by clause
-    * @returns
+    * @returns Itself
     */
    public setOrder(order:string) : Table
    {
@@ -190,7 +190,7 @@ export class Table
 
    /**
     * @param record The record to insert into the table
-    * @returns
+    * @returns Whether the statement was executed successfully
     */
    public async insert(record:Record) : Promise<boolean>
    {

@@ -24,6 +24,10 @@ import { Cursor } from "./Cursor.js";
 import { Record } from "./Record.js";
 import { Session } from "./Session.js";
 
+/**
+ * The Insert class uses the Table object in JsonWebDB.
+ * It exposes all the options possible when using the insert method
+ */
 export class Insert
 {
    private errm$:string = null;
@@ -47,37 +51,48 @@ export class Insert
    }
 
 
+   /**
+    * @returns Whether an error has occured
+    */
    public failed() : boolean
    {
       return(!this.success$);
    }
 
 
+   /**
+    * @returns The error-message from the backend
+    */
    public getErrorMessage() : string
    {
       return(this.errm$);
    }
 
 
+   /**
+    * @returns The number of rows affected
+    */
    public affected() : number
    {
       return(this.affected$);
    }
 
 
+   /**
+    * @returns The values returned by the operation
+    */
    public getReturnValues() : Cursor
    {
       return(this.cursor$);
    }
 
 
-   public useSavePoint(flag:boolean) : Insert
-   {
-      this.savepoint$ = flag;
-      return(this);
-   }
-
-
+   /**
+    * Some databases supports returning columns in insert/update/delete
+    * This is very helpful if triggers assign or modify columns
+    * @param columns The columns to be returned
+    * @returns Itself
+    */
    public setReturnColumns(columns:string|string[]) : Insert
    {
       if (!Array.isArray(columns))
@@ -88,6 +103,23 @@ export class Insert
    }
 
 
+   /**
+    * Savepoint ensures that only the last statement is
+    * rolled back in case of an error
+    * @param flag Whether to use savepoints
+    * @returns
+    */
+   public useSavePoint(flag:boolean) : Insert
+   {
+      this.savepoint$ = flag;
+      return(this);
+   }
+
+
+   /**
+    * @param values New values for filters
+    * @returns Whether the statement was executed successfully
+    */
    public async execute(record:Record) : Promise<boolean>
    {
       this.affected$ = 0;

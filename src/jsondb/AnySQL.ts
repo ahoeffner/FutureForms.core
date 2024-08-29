@@ -119,7 +119,7 @@ export class AnySQL
 
    /**
     * @param flag Whether to wrap the statement with a savepoint
-    * @returns
+    * @returns Itself
     */
    public useSavePoint(flag:boolean) : AnySQL
    {

@@ -27,6 +27,7 @@ import { NameValuePair } from "./filters/Filters.js";
 
 /**
  * Procedure is the client side object that wraps the JsonWebDB Procedure object.
+ * Used for calling a stored procedure
  * This class is inherited by Function, only
  */
 export class Procedure
@@ -99,7 +100,7 @@ export class Procedure
 
    /**
     * @param flag Whether to wrap the statement with a savepoint
-    * @returns
+    * @returns Itself
     */
    public useSavePoint(flag:boolean) : Procedure
    {
