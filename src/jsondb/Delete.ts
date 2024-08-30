@@ -50,7 +50,6 @@ export class Delete
 
 
    /**
-    *
     * @param table   The Table object
     * @param filters The where-clause
     */
@@ -148,7 +147,7 @@ export class Delete
     * Savepoint ensures that only the last statement is
     * rolled back in case of an error
     * @param flag Whether to use savepoints
-    * @returns
+    * @returns    Itself
     */
    public useSavePoint(flag:boolean) : Delete
    {

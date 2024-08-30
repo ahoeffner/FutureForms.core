@@ -107,7 +107,7 @@ export class Insert
     * Savepoint ensures that only the last statement is
     * rolled back in case of an error
     * @param flag Whether to use savepoints
-    * @returns
+    * @returns    Itself
     */
    public useSavePoint(flag:boolean) : Insert
    {

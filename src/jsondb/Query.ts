@@ -27,6 +27,10 @@ import { FilterGroup } from "./filters/FilterGroup.js";
 import { Filter, NameValuePair } from "./filters/Filters.js";
 
 
+/**
+ * The Query class uses the Table object in JsonWebDB.
+ * It exposes all the options possible when using the query method
+ */
 export class Query
 {
    private errm$:string = null;
@@ -47,6 +51,11 @@ export class Query
    private assertions$:NameValuePair[] = [];
 
 
+   /**
+    * @param table     The Table object
+    * @param columns   The columns to be returned
+    * @param filters   The where-clause
+    */
    public constructor(table:Table, columns?:string|string[], filters?:Filter|Filter[]|FilterGroup|FilterGroup[])
    {
       this.table$ = table;
@@ -67,24 +76,39 @@ export class Query
    }
 
 
+   /**
+    * @returns Whether an error has occured
+    */
    public failed() : boolean
    {
       return(!this.success$);
    }
 
 
+   /**
+    * @returns The error-message from the backend
+    */
    public getErrorMessage() : string
    {
       return(this.errm$);
    }
 
 
+   /**
+    * Assertions is used to ensure that columns hasn't
+    * been updated since the values was fetched from the database
+    * @returns The assertion object holding possible violations
+    */
    public getAssertionStatus() : Assertion
    {
       return(this.assert$);
    }
 
 
+   /**
+    * @param order The order by clause
+    * @returns Itself
+    */
    public setOrder(order:string) : Query
    {
       this.order$ = order;
@@ -92,6 +116,10 @@ export class Query
    }
 
 
+   /**
+    * @param rows The number of rows retrieved in each roundtrip
+    * @returns Itself
+    */
    public setArrayFetch(rows:number) : Query
    {
       this.arrayfetch$ = rows;
@@ -99,6 +127,12 @@ export class Query
    }
 
 
+   /**
+    * Assertions is used to ensure that columns hasn't
+    * been updated since the values was fetched from the database
+    * @param assertions Name/value pair ensuring columns hasn't been changed
+    * @returns
+    */
    public setAssertions(assertions?:NameValuePair|NameValuePair[]) : Query
    {
       if (assertions == null)
@@ -112,6 +146,11 @@ export class Query
    }
 
 
+   /**
+    * @param lock    Whether to lock the rows. This only applies to stateful connections
+    * @param nowait  Whether to return an error if the row is locked, or to wait
+    * @returns       Itself
+    */
    public setLockRows(lock:boolean, nowait?:boolean) : Query
    {
       if (nowait == null)
@@ -124,6 +163,12 @@ export class Query
    }
 
 
+   /**
+    * To save roundtrips, immediatedly close the cursor.
+    * If, for instance, you only want to fetch the first row
+    * @param close   Whether to close the cursor immediatedly after the first fetch
+    * @returns       Itself
+    */
    public setCloseCursor(close:boolean) : Query
    {
       this.close$ = close;
@@ -131,6 +176,11 @@ export class Query
    }
 
 
+   /**
+    * Bind all filters with new values
+    * @param values The new values
+    * @returns
+    */
    public bind(...values:any) : Query
    {
       if (this.filter$)
@@ -140,6 +190,12 @@ export class Query
    }
 
 
+   /**
+    * Savepoint ensures that only the last statement is
+    * rolled back in case of an error
+    * @param flag Whether to use savepoints
+    * @returns Itself
+    */
    public useSavePoint(flag:boolean) : Query
    {
       this.savepoint$ = flag;
@@ -147,6 +203,10 @@ export class Query
    }
 
 
+   /**
+    * @param values New values for filters
+    * @returns Whether the statement was executed successfully
+    */
    public async execute(...values:any)  : Promise<Cursor>
    {
       await this.table$.describe();

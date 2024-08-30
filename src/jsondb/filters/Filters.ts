@@ -130,6 +130,10 @@ export class Filters
     */
    public static Dates:Dates = new Dates();
 
+   /**
+    * @param column The column that must be null
+    * @returns      An IsNull filter
+    */
    public static IsNull(column:string) : Filter
    {
       let filter:Filter = new Filter();
@@ -138,6 +142,10 @@ export class Filters
       return(filter);
    }
 
+   /**
+    * @param column The column that cannot be null
+    * @returns      An IsNotNull filter
+    */
    public static IsNotNull(column:string) : Filter
    {
       let filter:Filter = new Filter();
@@ -146,6 +154,11 @@ export class Filters
       return(filter);
    }
 
+   /**
+    * @param column The column that must be equal to the value
+    * @param value  The value
+    * @returns      An Equals filter
+    */
    public static Equals(column:string, value:any) : Filter
    {
       let filter:Filter = new Filter();
@@ -155,6 +168,11 @@ export class Filters
       return(filter);
    }
 
+   /**
+    * @param column The column that must differ from the value
+    * @param value  The value
+    * @returns      A NotEquals filter
+    */
    public static NotEquals(column:string, value:any) : Filter
    {
       let filter:Filter = new Filter();
@@ -164,6 +182,11 @@ export class Filters
       return(filter);
    }
 
+   /**
+    * @param column The column that must match the value
+    * @param value  The value
+    * @returns      A Like filter
+    */
    public static Like(column:string, value:any) : Filter
    {
       let filter:Filter = new Filter();
@@ -173,6 +196,11 @@ export class Filters
       return(filter);
    }
 
+   /**
+    * @param column The column that cannot match the value
+    * @param value  The value
+    * @returns      A NotLike filter
+    */
    public static NotLike(column:string, value:any) : Filter
    {
       let filter:Filter = new Filter();
@@ -182,6 +210,12 @@ export class Filters
       return(filter);
    }
 
+   /**
+    * @param column The column that must be greater than the value
+    * @param value  The value
+    * @param equals Include the value itself
+    * @returns      A GreaterThan filter
+    */
    public static GreaterThan(column:string, value:any, equals?:boolean) : Filter
    {
       let type:string = ">";
@@ -194,6 +228,12 @@ export class Filters
       return(filter);
    }
 
+   /**
+    * @param column The column that must be less than the value
+    * @param value  The value
+    * @param equals Include the value itself
+    * @returns      A LessThan filter
+    */
    public static LessThan(column:string, value:any, equals?:boolean) : Filter
    {
       let type:string = "<";
@@ -206,6 +246,12 @@ export class Filters
       return(filter);
    }
 
+   /**
+    * @param column  The column that has fall within the interval
+    * @param fr      The start value
+    * @param to      The end value
+    * @returns       A Between filter
+    */
    public static Between(column:string, fr:any, to:any) : Filter
    {
       let filter:Filter = new Filter();
@@ -215,6 +261,12 @@ export class Filters
       return(filter);
    }
 
+   /**
+    * @param column  The column that has fall outside the interval
+    * @param fr      The start value
+    * @param to      The end value
+    * @returns       A NotBetween filter
+    */
    public static NotBetween(column:string, fr:any, to:any) : Filter
    {
       let filter:Filter = new Filter();
@@ -224,6 +276,11 @@ export class Filters
       return(filter);
    }
 
+   /**
+    * @param columns Column or columns that must be within an array of values, maybe retrieved from the database
+    * @param values  Array of values or a query to retrieve the array
+    * @returns       An In filter
+    */
    public static In(columns:string|string[], values:any[]|Query) : Filter
    {
       if (!Array.isArray(columns))
@@ -236,6 +293,11 @@ export class Filters
       return(filter);
    }
 
+   /**
+    * @param columns Column or columns that cannot be within a list of values, maybe retrieved from the database
+    * @param values  List of values or a query to retrieve the list
+    * @returns       An NotIn filter
+    */
    public static NotIn(columns:string|string[], values:any[]|Query) : Filter
    {
       if (!Array.isArray(columns))
@@ -248,6 +310,11 @@ export class Filters
       return(filter);
    }
 
+   /**
+    * @param columns Column or columns that exists in a list of values, maybe retrieved from the database
+    * @param values  List of values or a query to retrieve the list
+    * @returns       An Exist filter
+    */
    public static Exists(columns:string|string[], values:any[]|Query) : Filter
    {
       if (!Array.isArray(columns))
@@ -260,6 +327,11 @@ export class Filters
       return(filter);
    }
 
+   /**
+    * @param columns Column or columns that does not exists in a list of values, maybe retrieved from the database
+    * @param values  List of values or a query to retrieve the list
+    * @returns       An Exist filter
+    */
    public static NotExists(columns:string|string[], values:any[]|Query) : Filter
    {
       if (!Array.isArray(columns))
@@ -272,6 +344,12 @@ export class Filters
       return(filter);
    }
 
+   /**
+    * The filter must match a filter defined in the backend
+    * @param filter  The name of the custom filter
+    * @param args    Name/value pair of arguments to the custom filter
+    * @returns       A Custom filter
+    */
    public static Custom(filter:string, args?:NameValuePair|NameValuePair[]) : Filter
    {
       let arr:NameValuePair[] = null;

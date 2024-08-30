@@ -50,6 +50,10 @@ export class Update
    private assertions$:NameValuePair[] = [];
 
 
+   /**
+    * @param table   The Table object
+    * @param filters The where-clause
+    */
    public constructor(table:Table, filters?:Filter|Filter[]|FilterGroup|FilterGroup[])
    {
       this.table$ = table;
@@ -60,36 +64,59 @@ export class Update
    }
 
 
+   /**
+    * @returns Whether an error has occured
+    */
    public failed() : boolean
    {
       return(!this.success$);
    }
 
 
+   /**
+    * @returns The error-message from the backend
+    */
    public getErrorMessage() : string
    {
       return(this.errm$);
    }
 
 
+   /**
+    * @returns The number of rows affected
+    */
    public affected() : number
    {
       return(this.affected$);
    }
 
 
+   /**
+    * @returns The values returned by the operation
+    */
    public getReturnValues() : Cursor
    {
       return(this.cursor$);
    }
 
 
+   /**
+    * Assertions is used to ensure that columns hasn't
+    * been updated since the values was fetched from the database
+    * @returns The assertion object holding possible violations
+    */
    public getAssertionStatus() : Assertion
    {
       return(this.assert$);
    }
 
 
+   /**
+    * Assertions is used to ensure that columns hasn't
+    * been updated since the values was fetched from the database
+    * @param assertions Name/value pair ensuring columns hasn't been changed
+    * @returns
+    */
    public setAssertions(assertions?:NameValuePair|NameValuePair[]) : Update
    {
       if (assertions == null)
@@ -103,6 +130,11 @@ export class Update
    }
 
 
+   /**
+    * Bind all filters with new values
+    * @param values The new values
+    * @returns
+    */
    public bind(...values:any) : Update
    {
       if (this.filter$)
@@ -112,6 +144,12 @@ export class Update
    }
 
 
+   /**
+    * Savepoint ensures that only the last statement is
+    * rolled back in case of an error
+    * @param flag Whether to use savepoints
+    * @returns Itself
+    */
    public useSavePoint(flag:boolean) : Update
    {
       this.savepoint$ = flag;
@@ -119,6 +157,12 @@ export class Update
    }
 
 
+   /**
+    * Some databases supports returning columns in insert/update/delete
+    * This is very helpful if triggers assign or modify columns
+    * @param columns The columns to be returned
+    * @returns Itself
+    */
    public setReturnColumns(columns:string|string[]) : Update
    {
       if (!Array.isArray(columns))
@@ -129,6 +173,10 @@ export class Update
    }
 
 
+   /**
+    * @param values New values for filters
+    * @returns Whether the statement was executed successfully
+    */
    public async execute(record:Record, ...values:any) : Promise<boolean>
    {
       this.affected$ = 0;

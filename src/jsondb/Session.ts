@@ -19,6 +19,11 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+
+/**
+ * The session object is the client side part of a JsonWebDB session
+ * JsonWebDB is stateful and holds information for each session (authentication etc).
+ */
 export class Session
 {
    public static KEEPALIVE_MIN = 32;
@@ -37,18 +42,27 @@ export class Session
    private clientinfo$:{name:string, value:object}[] = [];
 
 
+   /**
+    * @returns Whether an error has occured
+    */
    public failed() : boolean
    {
       return(!this.success$);
    }
 
 
+   /**
+    * @returns The error-message from the backend
+    */
    public getErrorMessage() : string
    {
       return(this.errm$);
    }
 
 
+   /**
+    * The url that points to JsonWebDB
+    */
    public get url() : URL
    {
       let url:URL = this.url$;
@@ -60,6 +74,9 @@ export class Session
    }
 
 
+   /**
+    * The url that points to JsonWebDB
+    */
    public set url(url:URL|string)
    {
       if (typeof url === "string")
@@ -69,24 +86,45 @@ export class Session
    }
 
 
+   /**
+    * The unique id used by JsonWebDB
+    */
    public get sessionID() : string
    {
       return(this.guid$);
    }
 
 
+   /**
+    * Virtual Private Database lets you add a where-clause
+    * whenever querying specific tables (defined in the backend)
+    * @param name The name/column used in the backend where-clause
+    * @param value This sessions value for the name/column
+    */
    public addVPDContext(name:string, value:any) : void
    {
       this.vpd$.push({name: name, value: value});
    }
 
 
+   /**
+    * Some databases can use ClientInfo (check with your database documentation)
+    * @param name The name of the client-info
+    * @param value The value
+    */
    public addClientInfo(name:string, value:any) : void
    {
       this.clientinfo$.push({name: name, value: value});
    }
 
 
+   /**
+    * Connect to JsonWebDB
+    * @param username   The username
+    * @param password   A password
+    * @param stateful   Whether the session should use a dedicated database connection
+    * @returns Whether the connect was successfully
+    */
    public async connect(username:string, password?:string, stateful?:boolean) : Promise<boolean>
    {
       if (stateful == null)
@@ -139,6 +177,10 @@ export class Session
    }
 
 
+   /**
+    * Disconnect from JsonWebDB
+    * @returns Whether the disconnect was successfully
+    */
    public async disconnect() : Promise<boolean>
    {
       if (this.guid$ == null)
@@ -164,6 +206,10 @@ export class Session
    }
 
 
+   /**
+    * Sets VPD and ClientInfo.
+    * @returns Whether the properties was applied successfully
+    */
    public async setProperties() : Promise<boolean>
    {
       let request:any =
@@ -196,7 +242,7 @@ export class Session
    }
 
 
-   public async keepalive(next:Object) : Promise<void>
+   private async keepalive(next:Object) : Promise<void>
    {
       if (this.guid$ == null)
          return;
@@ -217,6 +263,12 @@ export class Session
    }
 
 
+   /**
+    * Sends the payload to JsonWebDB
+    * @param payload Any data
+    * @param path A uri-path
+    * @returns Whether the statement executed successfully
+    */
    public async invoke(payload:any, path?:string) : Promise<any>
    {
       if (!path) path = "";
@@ -254,6 +306,6 @@ class KeepAlive
    private async sleep(session:Session, next:Object, timeout:number) : Promise<void>
    {
       await new Promise(resolve => setTimeout(resolve,timeout));
-      session.keepalive(next);
+      session["keepalive"](next);
    }
 }
