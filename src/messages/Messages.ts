@@ -22,6 +22,9 @@
 import { MessagesEN } from './MessagesEN.js';
 
 
+/**
+ * Handle error messages
+ */
 export class Messages
 {
    private static default:string = "EN";
@@ -34,15 +37,20 @@ export class Messages
       );
 
 
-   public static get(msg:string, ...args:any) : string
+   /**
+    * @param msg     The message id
+    * @param params  Parameters. Parameters will be substituted using %1, %2 ...
+    * @returns       The message from the given language bundle and merged with parameters
+    */
+   public static get(msg:string, ...params:any) : string
    {
       let bundle:Map<string,string> = Messages.getBundle();
       let message:string = bundle.get(msg);
 
       if (!message) throw "Unknown message "+msg;
 
-      for (let i = 0; args && i < args.length; i++)
-         message = message.replaceAll("%"+(i+1),args[i]);
+      for (let i = 0; params && i < params.length; i++)
+         message = message.replaceAll("%"+(i+1),params[i]);
 
       return(message);
    }

@@ -19,6 +19,9 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+/**
+ * The english, and default message bundle
+ */
 export const MessagesEN:Map<string,string> = new Map<string,string>
 ([
     ["SOURCE_IS_NULL","Cannot create %1 because source is null"],

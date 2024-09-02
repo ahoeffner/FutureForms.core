@@ -21,6 +21,10 @@
 
 const version = "3.0.0";
 
+
+/**
+ * The Formsmodule is the entry class.
+ */
 export class FormsModule
 {
    private static language$:string = null;
