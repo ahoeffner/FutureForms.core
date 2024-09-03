@@ -1,1 +1,1 @@
-# forms30
+# The minimal futureforms library. Only includes the client-side part of JsonWebDB
