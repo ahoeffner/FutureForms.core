@@ -37,9 +37,9 @@ export enum WeekDays
 export class Dates
 {
    /**
-    * Helper filters for dealing with date columns
-    * When selecting data for a given date, it is necessary to
-    * query from (including) the beginning of that day until the beginning of next dsy (excluding)
+    * Helper filters for dealing with date columns.
+    * When selecting data for a given date, it is necessary to.
+    * query from (including) the beginning of that day until the beginning of next dsy (excluding).
     */
 
    private static DAY:number = 1000*60*60*24;

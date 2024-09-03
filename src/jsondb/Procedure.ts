@@ -27,8 +27,8 @@ import { NameValuePair } from "./filters/Filters.js";
 
 /**
  * Procedure is the client side object that wraps the JsonWebDB Procedure object.
- * Used for calling a stored procedure
- * This class is inherited by Function, only
+ * Used for calling a stored procedure.
+ * This class is inherited by Function, only difference is that functions returns a value
  */
 export class Procedure
 {

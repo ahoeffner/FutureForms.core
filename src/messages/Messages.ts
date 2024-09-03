@@ -23,7 +23,8 @@ import { MessagesEN } from './MessagesEN.js';
 
 
 /**
- * Handle error messages
+ * Handles error messages. Messages is defined in language specific bundles.
+ * If no bundle can be found for the given browser language setting, the "EN" is used.
  */
 export class Messages
 {

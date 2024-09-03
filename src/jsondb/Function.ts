@@ -24,7 +24,7 @@ import { Procedure } from "./Procedure.js";
 
 /**
  * Function is the client side object that wraps the JsonWebDB Function object.
- * Used for calling a stored function
+ * Used for calling a stored function.
  * Basically the same as Procedure, though a function returns a value
  */
 export class Function extends Procedure

@@ -23,9 +23,9 @@ import { Filter } from "./Filters.js";
 
 
 /**
- * The FilterGroup represents a where-clause in sql
- * It consists of conditions (Filters) and other FilterGroups
- * When adding a FilterGroup, all conditions inside that group will be surrounded in brackets
+ * The FilterGroup represents a where-clause in sql.
+ * It consists of conditions (Filters) and other FilterGroups.
+ * When adding a FilterGroup, all conditions inside that group will be surrounded in brackets.
  */
 export class FilterGroup
 {

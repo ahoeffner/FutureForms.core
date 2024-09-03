@@ -38,8 +38,8 @@ import { Filter, NameValuePair } from "./filters/Filters.js";
  *
  * Depending of the operation to be executed on the "table" use one of the execute methods:
  *
- *    When using insert(), update() and delete() the backend returns the status
- *    select() : Using this method, the backend will return a cursor
+ *    When using insert(), update() and delete() the backend returns the status.
+ *    select() : Using this method, the backend will return a cursor.
  *
  * For more control use the createInsert, createUpdate, createDelete or createQuery to get
  * an object specifically made for this operation

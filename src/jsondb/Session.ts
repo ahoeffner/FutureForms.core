@@ -21,7 +21,7 @@
 
 
 /**
- * The session object is the client side part of a JsonWebDB session
+ * The session object is the client side part of a JsonWebDB session.
  * JsonWebDB is stateful and holds information for each session (authentication etc).
  */
 export class Session

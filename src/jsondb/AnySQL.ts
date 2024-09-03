@@ -28,13 +28,13 @@ import { NameValuePair } from "./filters/Filters.js";
 
 /**
  * AnySQL is the client side object that wraps the JsonWebDB object SQL.
- * This can be used to execute any statement against the database
+ * This can be used to execute any statement against the database.
  *
  * Depending of the type of statement use one of the execute methods:
  *
- *    When using the execute() method, the backend only returns success or failure
- *    When using insert(), update() and delete() the backend returns the number of affected rows
- *    select() : Using this method, the backend will return a cursor
+ *    When using the execute() method, the backend only returns success or failure.
+ *    When using insert(), update() and delete() the backend returns the number of affected rows.
+ *    select() : Using this method, the backend will return a cursor.
  */
 export class AnySQL
 {

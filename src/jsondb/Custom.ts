@@ -24,7 +24,7 @@ import { Messages } from "../messages/Messages.js";
 
 
 /**
- * Send custom JSON to JsonWebDB
+ * Send custom JSON to JsonWebDB.
  * Any JSON can be sent and intercepted by the backend
  */
 export class Custom
@@ -41,7 +41,7 @@ export class Custom
       if (!session) throw Messages.get("SESSION_IS_NULL","AnySQL");
    }
 
-   
+
    /**
     * @returns Whether the statement was executed successfully
     */
