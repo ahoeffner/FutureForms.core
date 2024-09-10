@@ -43,6 +43,15 @@ export class Custom
 
 
    /**
+    * The session
+    */
+   protected get session() : Session
+   {
+      return(this.session$);
+   }
+
+
+   /**
     * @returns Whether the statement was executed successfully
     */
    public async execute(payload:any) : Promise<any>
