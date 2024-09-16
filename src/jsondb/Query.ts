@@ -277,7 +277,7 @@ export class Query
    }
 
 
-   public getBasicRequest() : any
+   public getBasicRequest(session?:boolean) : any
    {
       let request:any =
       {
@@ -292,6 +292,9 @@ export class Query
             }
          }
       }
+
+      if (session)
+         request.Table.session = this.session$.sessionID
 
       if (this.filter$)
          request.Table["select()"].filters = this.filter$.parse();
