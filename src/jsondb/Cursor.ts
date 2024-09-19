@@ -217,8 +217,15 @@ export class Cursor
          this.more$ = response.more;
          this.rows$ += response.rows.length;
 
-         if (ready <= 0) this.data$ = response.rows;
-         else this.data$.push(...response.rows);
+         if (ready <= 0)
+         {
+            this.pos$ = -1;
+            this.data$ = response.rows;
+         }
+         else
+         {
+            this.data$.push(...response.rows);
+         }
 
          return(response.rows.length + ready);
       }
