@@ -118,6 +118,7 @@ export class Query
 
    /**
     * @param rows The number of rows retrieved in each roundtrip
+    * Setting it to <= 0 will force the cursor to fetch all remaining records
     * @returns Itself
     */
    public setArrayFetch(rows:number) : Query

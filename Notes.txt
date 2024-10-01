@@ -1,1 +1,5 @@
 Assertions (delete ?)
+
+Source reload fjerner ikke gamle
+comments tilladt i source schema
+object ikke mandatory

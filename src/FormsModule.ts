@@ -29,7 +29,7 @@ export class FormsModule
 {
    private static language$:string = null;
 
-   private constructor()
+   protected constructor()
    {
    }
 

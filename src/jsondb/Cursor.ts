@@ -92,7 +92,8 @@ export class Cursor
 
 
    /**
-    * @param rows The number of rows to fetch in each roundtrip to JsonWebDB
+    * @param rows The number of rows to fetch in each roundtrip to JsonWebDB.
+    * Setting it to <= 0 will force the cursor to fetch all remaining records
     * @returns
     */
    public setArrayFetch(rows:number) : Cursor
