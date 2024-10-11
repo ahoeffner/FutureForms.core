@@ -33,12 +33,18 @@ export class FormsModule
    {
    }
 
+   /**
+    * @returns The version of this library
+    */
    public static version() : string
    {
       return(version);
    }
 
 
+   /**
+    * @returns The browser language
+    */
    public static get Language() : string
    {
       if (FormsModule.language$)
