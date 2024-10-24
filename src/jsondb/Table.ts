@@ -66,11 +66,19 @@ export class Table
     * @param source     The source sql
     * @param bindvalues Any bindvalues used in the sql
     */
-   public constructor(session:Session, source:string, bindvalues?:NameValuePair[])
+   public constructor(session:Session, source:string, bindvalues?:NameValuePair|NameValuePair[])
    {
       this.source$ = source;
       this.session$ = session;
-      this.bindvalues$ = bindvalues;
+		this.bindvalues$ = null;
+
+		if (bindvalues)
+		{
+			if (!Array.isArray(bindvalues))
+				bindvalues = [bindvalues];
+
+			this.bindvalues$ = bindvalues;
+		}
 
       if (!source) throw Messages.get("SOURCE_IS_NULL","Table");
       if (!session) throw Messages.get("SESSION_IS_NULL","Table");
