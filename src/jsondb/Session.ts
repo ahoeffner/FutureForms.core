@@ -216,6 +216,7 @@ export class Session
       {
          "Session":
          {
+				"session": this.guid$,
             "invoke": "properties()",
 
             "properties()":

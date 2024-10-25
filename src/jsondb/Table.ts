@@ -140,6 +140,15 @@ export class Table
 
 
    /**
+    * Bindvalues
+    */
+   public set bindvalues(bindvalues:NameValuePair[])
+   {
+      this.bindvalues$ = bindvalues;
+   }
+
+
+   /**
     *
     * @param order Se the order by clause
     * @returns Itself
@@ -193,81 +202,6 @@ export class Table
    public createQuery(columns?:string|string[], filters?:Filter|Filter[]|FilterGroup|FilterGroup[]) : Query
    {
       return(new Query(this,columns,filters));
-   }
-
-
-   /**
-    * @param record The record to insert into the table
-    * @returns Whether the statement was executed successfully
-    */
-   public async insert(record:Record) : Promise<boolean>
-   {
-      let ins:Insert = new Insert(this);
-
-      await ins.execute(record);
-      this.success$ = !ins.failed();
-      this.errm$ = ins.getErrorMessage();
-
-      return(this.success$);
-   }
-
-
-   /**
-    * @param record The record to holding changed values
-    * @param filter The filter specifying the rows targeted
-    * @returns The status
-    */
-   public async update(record:Record, filter?:FilterGroup) : Promise<boolean>
-   {
-      let upd:Update = new Update(this,filter);
-
-      this.success$ = await upd.execute(record);
-      this.errm$ = upd.getErrorMessage();
-
-      return(this.success$);
-   }
-
-
-   /**
-    * @param filter The filter specifying the rows targeted
-    * @returns
-    */
-   public async delete(filter?:FilterGroup) : Promise<boolean>
-   {
-      let del:Delete = new Delete(this,filter);
-
-      this.success$ = await del.execute();
-      this.errm$ = del.getErrorMessage();
-
-      return(this.success$);
-   }
-
-
-   /**
-    *
-    * @param columns    The columns to fetch
-    * @param filter     The where-clause
-    * @param close      Fetch and close the cursor in same roundtrip
-    * @param arrayfetch The number of rows to fetch in each roundtrip
-    * @returns
-    */
-   public async select(columns?:string|string[], filter?:FilterGroup, close?:boolean, arrayfetch?:number) : Promise<Cursor>
-   {
-      if (close == null)
-         close = false;
-
-      if (arrayfetch == null)
-         arrayfetch = 1;
-
-      let sel:Query = new Query(this,columns,filter);
-      sel.setArrayFetch(arrayfetch).setOrder(this.order$).setCloseCursor(close);
-
-      let cursor:Cursor = await sel.execute();
-
-      this.success$ = !sel.failed();
-      this.errm$ = sel.getErrorMessage();
-
-      return(cursor);
    }
 
 
