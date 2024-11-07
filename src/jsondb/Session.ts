@@ -125,7 +125,7 @@ export class Session
     * @param stateful   Whether the session should use a dedicated database connection
     * @returns Whether the connect was successfully
     */
-   public async connect(username:string, password?:string, stateful?:boolean) : Promise<boolean>
+   public async connect(username?:string, password?:string, stateful?:boolean) : Promise<boolean>
    {
       if (stateful == null)
          stateful = false;
@@ -138,12 +138,16 @@ export class Session
 
             "connect()":
             {
-               "username": username,
-               "password": password,
                "stateful": stateful
             }
          }
       }
+
+		if (username)
+			request.Session["connect()"].username = username;
+
+		if (password)
+			request.Session["connect()"].password = password;
 
       if (this.vpd$.length > 0)
          request.Session["connect()"].vpd = this.vpd$;
@@ -283,7 +287,7 @@ export class Session
       let success:boolean = true;
 
       let response:any = await fetch(path,{method: "POST", body: JSON.stringify(payload)})
-        .catch((error) =>{success = false; errmsg = error});
+        .catch((error) => {success = false; errmsg = error});
 
       if (!success) throw errmsg;
 
