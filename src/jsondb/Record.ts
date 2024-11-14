@@ -172,10 +172,12 @@ export class RecordDefinition
       if (!Array.isArray(columns))
          columns = [columns];
 
+		let offset:number = this.colindx$.size;
+
       for (let i = 0; i < columns.length; i++)
       {
          this.columns$.push(columns[i]);
-         this.colindx$.set(columns[i].toLowerCase(),i);
+         this.colindx$.set(columns[i].toLowerCase(),offset+i);
       }
 
       return(this);
